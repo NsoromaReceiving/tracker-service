@@ -11,13 +11,13 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 @Service
 public class Authentication {
-    @Value("${service.host}")
+    @Value("${nsoromagps.server2.host}")
     private String host;
     
-    @Value("${service.username}")
+    @Value("${nsoromagps.server2.username}")
     private String username;
     
-	@Value("${service.password}")
+	@Value("${nsoromagps.server2.password}")
     private String password;
 
     private String authenticationUrl;
