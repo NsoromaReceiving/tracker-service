@@ -58,6 +58,10 @@ public class TrackerState {
 
     private String regNumber;
 
+    private String trackerType;
+
+    private String trackerImei;
+
     @JsonProperty("source_id")
     public Integer getSourceId() {
         return sourceId;
@@ -212,9 +216,17 @@ public class TrackerState {
         this.regNumber = regNumber;
     }
 
+    public String getTrackerType() { return trackerType; }
+
+    public void setTrackerType(String trackerType) { this.trackerType = trackerType; }
+
+    public String getTrackerImei() { return trackerImei; }
+
+    public void setTrackerImei(String trackerImei) { this.trackerImei = trackerImei; }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("sourceId", sourceId).append("gps", gps).append("connectionStatus", connectionStatus).append("movementStatus", movementStatus).append("gsm", gsm).append("lastUpdate", lastUpdate).append("batteryLevel", batteryLevel).append("batteryUpdate", batteryUpdate).append("inputs", inputs).append("inputsUpdate", inputsUpdate).append("outputs", outputs).append("outputsUpdate", outputsUpdate).append("actualTrackUpdate", actualTrackUpdate).append("trackerId", trackerId).append("vehicleLabel", label).append("regNumber", regNumber).toString();
+        return new ToStringBuilder(this).append("sourceId", sourceId).append("gps", gps).append("connectionStatus", connectionStatus).append("movementStatus", movementStatus).append("gsm", gsm).append("lastUpdate", lastUpdate).append("batteryLevel", batteryLevel).append("batteryUpdate", batteryUpdate).append("inputs", inputs).append("inputsUpdate", inputsUpdate).append("outputs", outputs).append("outputsUpdate", outputsUpdate).append("actualTrackUpdate", actualTrackUpdate).append("trackerId", trackerId).append("vehicleLabel", label).append("regNumber", regNumber).append("trackerImei", trackerImei).append("trackerType", trackerType).toString();
     }
 
 }

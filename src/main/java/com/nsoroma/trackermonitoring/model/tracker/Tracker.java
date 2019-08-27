@@ -1,5 +1,7 @@
+
 package com.nsoroma.trackermonitoring.model.tracker;
 
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -7,143 +9,91 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "trackerId",
-    "vehicleLabel",
-    "regNumber",
-    "lastUpdateDate",
-    "gpsCoords",
-    "signalLevel",
-    "connectionStatus",
-    "movementStatus",
-    "gsmSignalLevel",
-    "networkName"
+    "id",
+    "label",
+    "group_id",
+    "source",
+    "tag_bindings",
+    "clone"
 })
 public class Tracker {
 
-    @JsonProperty("trackerId")
-    private String trackerId;
-    @JsonProperty("vehicleLabel")
-    private String vehicleLabel;
-    @JsonProperty("regNumber")
-    private String regNumber;
-    @JsonProperty("lastUpdateDate")
-    private String lastUpdateDate;
-    @JsonProperty("gpsCoords")
-    private GpsCoords gpsCoords;
-    @JsonProperty("signalLevel")
-    private Integer signalLevel;
-    @JsonProperty("connectionStatus")
-    private String connectionStatus;
-    @JsonProperty("movementStatus")
-    private String movementStatus;
-    @JsonProperty("gsmSignalLevel")
-    private Integer gsmSignalLevel;
-    @JsonProperty("networkName")
-    private String networkName;
+    @JsonProperty("id")
+    private Integer id;
+    @JsonProperty("label")
+    private String label;
+    @JsonProperty("group_id")
+    private Integer groupId;
+    @JsonProperty("source")
+    private Source source;
+    @JsonProperty("tag_bindings")
+    private List<Object> tagBindings = null;
+    @JsonProperty("clone")
+    private Boolean clone;
 
-    @JsonProperty("trackerId")
-    public String getTrackerId() {
-        return trackerId;
+    @JsonProperty("id")
+    public Integer getId() {
+        return id;
     }
 
-    @JsonProperty("trackerId")
-    public void setTrackerId(String trackerId) {
-        this.trackerId = trackerId;
+    @JsonProperty("id")
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    @JsonProperty("vehicleLabel")
-    public String getVehicleLabel() {
-        return vehicleLabel;
+    @JsonProperty("label")
+    public String getLabel() {
+        return label;
     }
 
-    @JsonProperty("vehicleLabel")
-    public void setVehicleLabel(String vehicleLabel) {
-        this.vehicleLabel = vehicleLabel;
+    @JsonProperty("label")
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    @JsonProperty("regNumber")
-    public String getRegNumber() {
-        return regNumber;
+    @JsonProperty("group_id")
+    public Integer getGroupId() {
+        return groupId;
     }
 
-    @JsonProperty("regNumber")
-    public void setRegNumber(String regNumber) {
-        this.regNumber = regNumber;
+    @JsonProperty("group_id")
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
     }
 
-    @JsonProperty("lastUpdateDate")
-    public String getLastUpdateDate() {
-        return lastUpdateDate;
+    @JsonProperty("source")
+    public Source getSource() {
+        return source;
     }
 
-    @JsonProperty("lastUpdateDate")
-    public void setLastUpdateDate(String lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
+    @JsonProperty("source")
+    public void setSource(Source source) {
+        this.source = source;
     }
 
-    @JsonProperty("gpsCoords")
-    public GpsCoords getGpsCoords() {
-        return gpsCoords;
+    @JsonProperty("tag_bindings")
+    public List<Object> getTagBindings() {
+        return tagBindings;
     }
 
-    @JsonProperty("gpsCoords")
-    public void setGpsCoords(GpsCoords gpsCoords) {
-        this.gpsCoords = gpsCoords;
+    @JsonProperty("tag_bindings")
+    public void setTagBindings(List<Object> tagBindings) {
+        this.tagBindings = tagBindings;
     }
 
-    @JsonProperty("signalLevel")
-    public Integer getSignalLevel() {
-        return signalLevel;
+    @JsonProperty("clone")
+    public Boolean getClone() {
+        return clone;
     }
 
-    @JsonProperty("signalLevel")
-    public void setSignalLevel(Integer signalLevel) {
-        this.signalLevel = signalLevel;
-    }
-
-    @JsonProperty("connectionStatus")
-    public String getConnectionStatus() {
-        return connectionStatus;
-    }
-
-    @JsonProperty("connectionStatus")
-    public void setConnectionStatus(String connectionStatus) {
-        this.connectionStatus = connectionStatus;
-    }
-
-    @JsonProperty("movementStatus")
-    public String getMovementStatus() {
-        return movementStatus;
-    }
-
-    @JsonProperty("movementStatus")
-    public void setMovementStatus(String movementStatus) {
-        this.movementStatus = movementStatus;
-    }
-
-    @JsonProperty("gsmSignalLevel")
-    public Integer getGsmSignalLevel() {
-        return gsmSignalLevel;
-    }
-
-    @JsonProperty("gsmSignalLevel")
-    public void setGsmSignalLevel(Integer gsmSignalLevel) {
-        this.gsmSignalLevel = gsmSignalLevel;
-    }
-
-    @JsonProperty("networkName")
-    public String getNetworkName() {
-        return networkName;
-    }
-
-    @JsonProperty("networkName")
-    public void setNetworkName(String networkName) {
-        this.networkName = networkName;
+    @JsonProperty("clone")
+    public void setClone(Boolean clone) {
+        this.clone = clone;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("trackerId", trackerId).append("vehicleLabel", vehicleLabel).append("regNumber", regNumber).append("lastUpdateDate", lastUpdateDate).append("gpsCoords", gpsCoords).append("signalLevel", signalLevel).append("connectionStatus", connectionStatus).append("movementStatus", movementStatus).append("gsmSignalLevel", gsmSignalLevel).append("networkName", networkName).toString();
+        return new ToStringBuilder(this).append("id", id).append("label", label).append("groupId", groupId).append("source", source).append("tagBindings", tagBindings).append("clone", clone).toString();
     }
 
 }

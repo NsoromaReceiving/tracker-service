@@ -3,7 +3,6 @@ package com.nsoroma.trackermonitoring.datasourceclient;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,13 +31,21 @@ public class TrackersClient {
     @Autowired
     Authentication authClient;
 
+    private  String trackerUrl;
+
     private String trackerStateUrl;
 
     private String hash;
 
+    private String trackerString;
+
     private String trackerStateString;
 
+    private Tracker trackerObject;
+
     private TrackerState trackerStateObject;
+
+    private List<Tracker> trackerList;
 
     private List<TrackerState> trackerStateList;
 
@@ -50,7 +57,6 @@ public class TrackersClient {
         hash = authClient.getUserhash();
         trackerStateUrl = host + "tracker/get_states/?trackers="+trackerIds+"&hash=" + hash;
         System.out.println(trackerStateUrl);
-        List<Tracker> List = Collections.emptyList();
         trackerStateList = new ArrayList<TrackerState>();
         Ids = new ArrayList<String>(Arrays.asList(trackerIds.substring(1, trackerIds.length()-1).split(",")));
 
@@ -88,4 +94,28 @@ public class TrackersClient {
         return new HashSet<TrackerState>(trackerStateList);
     }
 
+    public Set<Tracker> getTrackers() {
+        hash = authClient.getUserhash();
+        trackerUrl = host + "tracker/list/?hash=" +hash;
+        System.out.println(trackerUrl);
+        trackerList = new ArrayList<Tracker>();
+
+        try {
+            HttpResponse<JsonNode> serverResponse = Unirest.get(trackerUrl).header("accept", "application/json")
+                    .asJson();
+            if (serverResponse.getStatus() == 200) {
+                trackerString = serverResponse.getBody().getObject().getJSONArray("list").toString();
+                ObjectMapper mapper = new ObjectMapper();
+                trackerList = Arrays.asList(mapper.readValue(trackerString, Tracker[].class));
+                System.out.println(trackerList);
+            } else {
+                System.out.println("Tracker fetch failed with response : ");
+                System.out.println(serverResponse.getStatus());
+                System.out.println(serverResponse.getBody());
+            }
+        } catch (UnirestException | IOException e) {
+            System.out.println("Unable to make request to server " + e);
+        }
+        return new HashSet<Tracker>(trackerList);
+    }
 }

@@ -1,9 +1,7 @@
 package com.nsoroma.trackermonitoring.services;
 
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 
 import com.nsoroma.trackermonitoring.datasourceclient.Vehicles;
 import com.nsoroma.trackermonitoring.model.tracker.Tracker;
@@ -30,6 +28,8 @@ public class Trackers {
 
     private Set<TrackerState> trackerStateSet;
 
+    private Set<Tracker> trackerSet;
+
     public Trackers(){}
 
     public Set<TrackerState> getTrackers() {
@@ -51,6 +51,27 @@ public class Trackers {
         vehicleTrackerIds = "[" + ids.substring(0, ids.length()-1) + "]";
 
         trackerStateSet = trackersClient.getTrackerState(vehicleTrackerIds, vehicleSet);
-        return new HashSet<TrackerState>(trackerStateSet);
+        trackerSet = trackersClient.getTrackers();
+        return new HashSet<TrackerState>(setTrackerInfo(trackerStateSet, trackerSet));
+    }
+
+    public Set<TrackerState> setTrackerInfo(Set<TrackerState> trackerStates, Set<Tracker> trackers) {
+        Iterator iterator = trackerStates.iterator();
+        List<Tracker> trackerList = new ArrayList<Tracker>(trackers);
+        while(iterator.hasNext()){
+            TrackerState trackerState = (TrackerState) iterator.next();
+            if(trackerState.getTrackerId() != null) {
+                String trackerId = trackerState.getTrackerId();
+                for (int i = 0; i < trackerList.size(); i++) {
+                    String Id = trackerList.get(i).getId().toString();
+                    if(trackerId.equals(Id)) {
+                        trackerState.setTrackerType(trackerList.get(i).getSource().getModel());
+                        trackerState.setTrackerImei(trackerList.get(i).getSource().getDeviceId());
+                    }
+                }
+
+            }
+        }
+        return new HashSet<TrackerState>(trackerStates);
     }
 }
