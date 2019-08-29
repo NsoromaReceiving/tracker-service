@@ -1,7 +1,11 @@
 package com.nsoroma.trackermonitoring.services;
 
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.nsoroma.trackermonitoring.datasourceclient.Vehicles;
 import com.nsoroma.trackermonitoring.model.tracker.Tracker;
@@ -32,7 +36,8 @@ public class Trackers {
 
     public Trackers(){}
 
-    public Set<TrackerState> getTrackers() {
+    public LinkedHashSet<TrackerState> getTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order) {
+
         vehicleSet = vehicleClient.getVehicles();
         
         Iterator iterator = vehicleSet.iterator();
@@ -52,7 +57,9 @@ public class Trackers {
 
         trackerStateSet = trackersClient.getTrackerState(vehicleTrackerIds, vehicleSet);
         trackerSet = trackersClient.getTrackers();
-        return new HashSet<TrackerState>(setTrackerInfo(trackerStateSet, trackerSet));
+        trackerStateSet = setTrackerInfo(trackerStateSet, trackerSet);
+        trackerStateSet = filterTrackers(duration, customerId, type, order , trackerStateSet);
+        return new LinkedHashSet<>(trackerStateSet);
     }
 
     public Set<TrackerState> setTrackerInfo(Set<TrackerState> trackerStates, Set<Tracker> trackers) {
@@ -73,5 +80,44 @@ public class Trackers {
             }
         }
         return new HashSet<TrackerState>(trackerStates);
+    }
+
+    public LinkedHashSet<TrackerState> filterTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order, Set<TrackerState>trackerStates) {
+        order.orElse("dsc");
+        //System.out.println("duration= " + duration.get() + " customerID= " + customerId.get() + " type= " + type.get() + "order= " + order.get() );
+
+        if (duration.isPresent()) {
+            System.out.println("Duration= " + duration.get());
+            trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getLastUpdate().substring(0,10).equals(duration.get())).collect(Collectors.toSet());
+        }
+        if (customerId.isPresent()) {
+            System.out.println("customerID present");
+        }
+        if (type.isPresent()){
+            System.out.println("Type= " + type.get());
+            trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getTrackerType().equals(type.get())).collect(Collectors.toSet());
+        }
+        if (order.isPresent()) {
+            System.out.println(order.get());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            trackerStates = trackerStates.stream().sorted(Comparator.comparing(TrackerState::getLastUpdate, (date1, date2) -> {
+                try {
+                    Date d1 = sdf.parse(date1);
+                    Date d2 = sdf.parse(date2);
+                    if(order.get().equals("dsc")) {
+                        return (d1.getTime() > d2.getTime() ? -1 : 1); //descending
+                    } else {
+                        return (d1.getTime() > d2.getTime() ? 1 : -1); //ascending
+                    }
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return date2.compareTo(date1);
+            })).collect(Collectors.toCollection(LinkedHashSet::new));
+        }
+
+        System.out.println(trackerStates);
+        return new LinkedHashSet<>(trackerStates);
     }
 }
