@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.nsoroma.trackermonitoring.datasourceclient.Vehicles;
 import com.nsoroma.trackermonitoring.model.tracker.Tracker;
@@ -46,8 +45,7 @@ public class Trackers {
         String vehicleLabel;
         String regNumber;
 
-        while(iterator.hasNext()){
-            Vehicle vehicle = (Vehicle) iterator.next();
+        for(Vehicle vehicle: vehicleSet){
             if(vehicle.getTrackerId() != null){
                 ids += vehicle.getTrackerId().toString() + ",";
             }
@@ -63,10 +61,8 @@ public class Trackers {
     }
 
     public Set<TrackerState> setTrackerInfo(Set<TrackerState> trackerStates, Set<Tracker> trackers) {
-        Iterator iterator = trackerStates.iterator();
         List<Tracker> trackerList = new ArrayList<Tracker>(trackers);
-        while(iterator.hasNext()){
-            TrackerState trackerState = (TrackerState) iterator.next();
+        for (TrackerState trackerState: trackerStates){
             if(trackerState.getTrackerId() != null) {
                 String trackerId = trackerState.getTrackerId();
                 for (int i = 0; i < trackerList.size(); i++) {

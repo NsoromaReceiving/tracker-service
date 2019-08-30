@@ -7,7 +7,6 @@ package com.nsoroma.trackermonitoring.restcontrollers;
 
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nsoroma.trackermonitoring.services.Trackers;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.*;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-08-28T15:39:11.130Z")

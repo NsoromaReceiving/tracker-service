@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -65,10 +64,8 @@ public class TrackersClient {
                     .asJson();
             if (serverResponse.getStatus() == 200) {
                 ObjectMapper mapper = new ObjectMapper();
-                Iterator iterator = vehiclesSet.iterator();
                 JSONObject states = serverResponse.getBody().getObject().getJSONObject("states");
-                while(iterator.hasNext()){
-                    Vehicle vehicle = (Vehicle) iterator.next();
+                for(Vehicle vehicle: vehiclesSet){
                     if(vehicle.getTrackerId() != null) {
                         String trackerId = vehicle.getTrackerId().toString();
                         String label = vehicle.getLabel().toString();
