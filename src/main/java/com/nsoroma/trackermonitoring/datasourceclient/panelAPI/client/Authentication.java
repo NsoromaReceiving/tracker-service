@@ -1,4 +1,4 @@
-package com.nsoroma.trackermonitoring.datasourceclient;
+package com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,13 +11,13 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 @Service
 public class Authentication {
-    @Value("${nsoromagps.server2.host}")
+    @Value("${nsoromagps.server2.panelAPI.host}")
     private String host;
     
-    @Value("${nsoromagps.server2.username}")
+    @Value("${nsoromagps.server2.panelAPI.username}")
     private String username;
     
-	@Value("${nsoromagps.server2.password}")
+	@Value("${nsoromagps.server2.panelAPI.password}")
     private String password;
 
     private String authenticationUrl;
@@ -26,8 +26,8 @@ public class Authentication {
 
     public Authentication() { }
 
-    public String getUserhash() {
-        authenticationUrl = host + "user/auth?login=" + username + "&password=" + password;
+    public String getDealerHash() {
+        authenticationUrl = host + "account/auth?login=" + username + "&password=" + password;
         System.out.println(authenticationUrl);
         try {
             HttpResponse<JsonNode> serverResponse = Unirest.get(authenticationUrl)
