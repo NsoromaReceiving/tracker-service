@@ -1,232 +1,67 @@
 
 package com.nsoroma.trackermonitoring.model.trackerstate;
 
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "source_id",
-    "gps",
-    "connection_status",
-    "movement_status",
-    "gsm",
-    "last_update",
-    "battery_level",
-    "battery_update",
-    "inputs",
-    "inputs_update",
-    "outputs",
-    "outputs_update",
-    "actual_track_update"
-})
 public class TrackerState {
 
-    @JsonProperty("source_id")
-    private Integer sourceId;
-    @JsonProperty("gps")
-    private Gps gps;
-    @JsonProperty("connection_status")
-    private String connectionStatus;
-    @JsonProperty("movement_status")
-    private String movementStatus;
-    @JsonProperty("gsm")
-    private Gsm gsm;
-    @JsonProperty("last_update")
-    private String lastUpdate;
-    @JsonProperty("battery_level")
-    private Integer batteryLevel;
-    @JsonProperty("battery_update")
-    private String batteryUpdate;
-    @JsonProperty("inputs")
-    private List<Boolean> inputs = null;
-    @JsonProperty("inputs_update")
-    private String inputsUpdate;
-    @JsonProperty("outputs")
-    private List<Boolean> outputs = null;
-    @JsonProperty("outputs_update")
-    private String outputsUpdate;
-    @JsonProperty("actual_track_update")
-    private String actualTrackUpdate;
-
-    private String trackerId;
-
     private String label;
+    private String customerId;
+    private String trackerId;
+    private String Imei;
+    private String model;
+    private String phoneNumber;
+    private String connectionStatus;
+    private String tariffEndDate;
+    private String customerName;
+    private String lastGpsUpdate;
+    private String lastGpsSignalLevel;
+    private String lastGpsLocation;
+    private String lastBatteryLevel;
+    private String gsmSignalLevel;
+    private String gsmNetworkName;
 
-    private String regNumber;
+    public String getLabel() { return label; }
+    public void setLabel(String label) { this.label = label; }
 
-    private String trackerType;
+    public String getCustomerId() { return customerId; }
+    public void setCustomerId(String customerId) { this.customerId = customerId; }
 
-    private String trackerImei;
+    public String getTrackerId() { return trackerId; }
+    public void setTrackerId(String trackerId) { this.trackerId = trackerId; }
 
-    @JsonProperty("source_id")
-    public Integer getSourceId() {
-        return sourceId;
-    }
+    public String getImei() { return Imei; }
+    public void setImei(String imei) { Imei = imei; }
 
-    @JsonProperty("source_id")
-    public void setSourceId(Integer sourceId) {
-        this.sourceId = sourceId;
-    }
+    public String getModel() { return model; }
+    public void setModel(String model) { this.model = model; }
 
-    @JsonProperty("gps")
-    public Gps getGps() {
-        return gps;
-    }
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
-    @JsonProperty("gps")
-    public void setGps(Gps gps) {
-        this.gps = gps;
-    }
+    public String getConnectionStatus() { return connectionStatus; }
+    public void setConnectionStatus(String connectionStatus) { this.connectionStatus = connectionStatus; }
 
-    @JsonProperty("connection_status")
-    public String getConnectionStatus() {
-        return connectionStatus;
-    }
+    public String getTariffEndDate() { return tariffEndDate; }
+    public void setTariffEndDate(String tariffEndDate) { this.tariffEndDate = tariffEndDate; }
 
-    @JsonProperty("connection_status")
-    public void setConnectionStatus(String connectionStatus) {
-        this.connectionStatus = connectionStatus;
-    }
+    public String getCustomerName() { return customerName; }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
 
-    @JsonProperty("movement_status")
-    public String getMovementStatus() {
-        return movementStatus;
-    }
+    public String getLastGpsUpdate() { return lastGpsUpdate; }
+    public void setLastGpsUpdate(String lastGpsUpdate) { this.lastGpsUpdate = lastGpsUpdate; }
 
-    @JsonProperty("movement_status")
-    public void setMovementStatus(String movementStatus) {
-        this.movementStatus = movementStatus;
-    }
+    public String getLastGpsSignalLevel() { return lastGpsSignalLevel; }
+    public void setLastGpsSignalLevel(String lastGpsSignalLevel) { this.lastGpsSignalLevel = lastGpsSignalLevel; }
 
-    @JsonProperty("gsm")
-    public Gsm getGsm() {
-        return gsm;
-    }
+    public String getLastGpsLocation() { return lastGpsLocation; }
+    public void setLastGpsLocation(String lastGpsLocation) { this.lastGpsLocation = lastGpsLocation; }
 
-    @JsonProperty("gsm")
-    public void setGsm(Gsm gsm) {
-        this.gsm = gsm;
-    }
+    public String getLastBatteryLevel() { return lastBatteryLevel; }
+    public void setLastBatteryLevel(String lastBatteryLevel) { this.lastBatteryLevel = lastBatteryLevel; }
 
-    @JsonProperty("last_update")
-    public String getLastUpdate() {
-        return lastUpdate;
-    }
+    public String getGsmSignalLevel() { return gsmSignalLevel; }
+    public void setGsmSignalLevel(String gsmSignalLevel) { this.gsmSignalLevel = gsmSignalLevel; }
 
-    @JsonProperty("last_update")
-    public void setLastUpdate(String lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
-    @JsonProperty("battery_level")
-    public Integer getBatteryLevel() {
-        return batteryLevel;
-    }
-
-    @JsonProperty("battery_level")
-    public void setBatteryLevel(Integer batteryLevel) {
-        this.batteryLevel = batteryLevel;
-    }
-
-    @JsonProperty("battery_update")
-    public String getBatteryUpdate() {
-        return batteryUpdate;
-    }
-
-    @JsonProperty("battery_update")
-    public void setBatteryUpdate(String batteryUpdate) {
-        this.batteryUpdate = batteryUpdate;
-    }
-
-    @JsonProperty("inputs")
-    public List<Boolean> getInputs() {
-        return inputs;
-    }
-
-    @JsonProperty("inputs")
-    public void setInputs(List<Boolean> inputs) {
-        this.inputs = inputs;
-    }
-
-    @JsonProperty("inputs_update")
-    public String getInputsUpdate() {
-        return inputsUpdate;
-    }
-
-    @JsonProperty("inputs_update")
-    public void setInputsUpdate(String inputsUpdate) {
-        this.inputsUpdate = inputsUpdate;
-    }
-
-    @JsonProperty("outputs")
-    public List<Boolean> getOutputs() {
-        return outputs;
-    }
-
-    @JsonProperty("outputs")
-    public void setOutputs(List<Boolean> outputs) {
-        this.outputs = outputs;
-    }
-
-    @JsonProperty("outputs_update")
-    public String getOutputsUpdate() {
-        return outputsUpdate;
-    }
-
-    @JsonProperty("outputs_update")
-    public void setOutputsUpdate(String outputsUpdate) {
-        this.outputsUpdate = outputsUpdate;
-    }
-
-    @JsonProperty("actual_track_update")
-    public String getActualTrackUpdate() {
-        return actualTrackUpdate;
-    }
-
-    @JsonProperty("actual_track_update")
-    public void setActualTrackUpdate(String actualTrackUpdate) {
-        this.actualTrackUpdate = actualTrackUpdate;
-    }
-
-    public String getTrackerId() {
-        return trackerId;
-    }
-
-    public void setTrackerId(String trackerId) {
-        this.trackerId = trackerId;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public String getRegNumber() {
-        return regNumber;
-    }
-
-    public void setRegNumber(String regNumber) {
-        this.regNumber = regNumber;
-    }
-
-    public String getTrackerType() { return trackerType; }
-
-    public void setTrackerType(String trackerType) { this.trackerType = trackerType; }
-
-    public String getTrackerImei() { return trackerImei; }
-
-    public void setTrackerImei(String trackerImei) { this.trackerImei = trackerImei; }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).append("sourceId", sourceId).append("gps", gps).append("connectionStatus", connectionStatus).append("movementStatus", movementStatus).append("gsm", gsm).append("lastUpdate", lastUpdate).append("batteryLevel", batteryLevel).append("batteryUpdate", batteryUpdate).append("inputs", inputs).append("inputsUpdate", inputsUpdate).append("outputs", outputs).append("outputsUpdate", outputsUpdate).append("actualTrackUpdate", actualTrackUpdate).append("trackerId", trackerId).append("vehicleLabel", label).append("regNumber", regNumber).append("trackerImei", trackerImei).append("trackerType", trackerType).toString();
-    }
-
+    public String getGsmNetworkName() { return gsmNetworkName; }
+    public void setGsmNetworkName(String gsmNetworkName) { this.gsmNetworkName = gsmNetworkName; }
 }
