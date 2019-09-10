@@ -25,6 +25,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 })
 public class TrackerLastState {
 
+    private String trackerId;
     @JsonProperty("source_id")
     private Integer sourceId;
     @JsonProperty("gps")
@@ -182,9 +183,13 @@ public class TrackerLastState {
         this.actualTrackUpdate = actualTrackUpdate;
     }
 
+    public String getTrackerId() { return trackerId; }
+
+    public void setTrackerId(String trackerId) { this.trackerId = trackerId; }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("sourceId", sourceId).append("gps", gps).append("connectionStatus", connectionStatus).append("movementStatus", movementStatus).append("gsm", gsm).append("lastUpdate", lastUpdate).append("batteryLevel", batteryLevel).append("batteryUpdate", batteryUpdate).append("inputs", inputs).append("inputsUpdate", inputsUpdate).append("outputs", outputs).append("outputsUpdate", outputsUpdate).append("actualTrackUpdate", actualTrackUpdate).toString();
+        return new ToStringBuilder(this).append("sourceId", sourceId).append("gps", gps).append("connectionStatus", connectionStatus).append("movementStatus", movementStatus).append("gsm", gsm).append("lastUpdate", lastUpdate).append("batteryLevel", batteryLevel).append("batteryUpdate", batteryUpdate).append("inputs", inputs).append("inputsUpdate", inputsUpdate).append("outputs", outputs).append("outputsUpdate", outputsUpdate).append("actualTrackUpdate", actualTrackUpdate).append("trackerId",trackerId).toString();
     }
 
 }
