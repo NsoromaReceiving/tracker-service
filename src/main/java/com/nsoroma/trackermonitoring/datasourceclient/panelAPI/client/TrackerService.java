@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface TrackerService {
 
-    public List<Tracker> getTrackerList(String hash) throws JsonMappingException, IOException;
+     List<Tracker> getTrackerList(String hash) throws JsonMappingException, IOException;
 
 }
