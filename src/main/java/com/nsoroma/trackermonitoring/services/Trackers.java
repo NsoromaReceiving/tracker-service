@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.datasourceclient.api.client.ApiTrackerService;
 import com.nsoroma.trackermonitoring.datasourceclient.api.model.TrackerLastState;
 import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiAuthentication;
@@ -37,20 +38,34 @@ public class Trackers {
 
     public Trackers(){}
 
+    //serves api/trackers/?param1=&param2=...
     public LinkedHashSet<TrackerState> getTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order) throws IOException {
 
-        List<TrackerState> trackerStates = new ArrayList<TrackerState>();
-
-        List<Tracker> trackerList = getTrackerList();
-        List<Customer> customerList = getCustomerList();
+        String hash = dealerAuthClient.getDealerHash();
+        List<Tracker> trackerList = getTrackerList(customerId, hash); //gets list of all trackers on server 2 which may belong to a user
+        List<Customer> customerList;
+        Set<TrackerState> trackerStates = new HashSet<>(Collections.emptySet());
         List<TrackerLastState> trackerLastStateList = new ArrayList<TrackerLastState>();
-        for(Customer customer: customerList) {
-            List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customer.getId().toString(),trackerList);
+
+        if(customerId.isPresent()){
+            List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customerId.get(),trackerList,hash);
+            System.out.println(customerTrackerLastStateList);
             if(customerTrackerLastStateList != null) {
+                System.out.println("came here");
                 trackerLastStateList.addAll(customerTrackerLastStateList);
             }
+        } else {
+            customerList = getCustomerList(hash);
+            for(Customer customer: customerList) {
+                List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customer.getId().toString(),trackerList,hash);
+                if(customerTrackerLastStateList != null) {
+                    trackerLastStateList.addAll(customerTrackerLastStateList);
+                }
+            }
         }
+
         for(Tracker tracker: trackerList) {
+            //this should be turned to a function
             TrackerState trackerState = new TrackerState();
             trackerState.setLabel(tracker.getLabel());
             trackerState.setCustomerId(tracker.getUserId().toString());
@@ -60,11 +75,14 @@ public class Trackers {
             trackerState.setPhoneNumber(tracker.getSource().getPhone());
             trackerState.setConnectionStatus(tracker.getSource().getConnectionStatus());
             trackerState.setTariffEndDate(tracker.getSource().getTariffEndDate());
-            List<Customer> trackerCustomer = customerList.stream().filter(customer -> customer.getId().toString().equals(trackerState.getCustomerId())).collect(Collectors.toList());
-            if(trackerCustomer.size() > 0){
-                String customerName = trackerCustomer.get(0).getFirstName() +" "+ trackerCustomer.get(0).getMiddleName() + " " + trackerCustomer.get(0).getLastName();
+            Customer trackerCustomer = getCustomer(hash,tracker.getUserId().toString());
+            System.out.println(trackerCustomer);
+            if(trackerCustomer != null){
+                String customerName = trackerCustomer.getFirstName() +" "+ trackerCustomer.getMiddleName() + " " + trackerCustomer.getLastName();
                 trackerState.setCustomerName(customerName);
             }
+
+            //did not want to go back to server
             List<TrackerLastState> lastState = trackerLastStateList.stream().filter(trackerLastState -> trackerLastState.getTrackerId().equals(trackerState.getTrackerId())).collect(Collectors.toList());
             if(lastState.size() > 0) {
                 System.out.println(lastState.get(0));
@@ -95,44 +113,104 @@ public class Trackers {
                 }
 
             }
-
             trackerStates.add(trackerState);
         }
-        return new LinkedHashSet<>(trackerStates);
+
+        return new LinkedHashSet<>(filterTrackers(duration,type,order, trackerStates));
+    }
+
+    //serves api/tracker/{id}
+    public TrackerState getTracker(String id) throws IOException, UnirestException {
+        TrackerState trackerState = new TrackerState();
+        String hash = dealerAuthClient.getDealerHash();
+        Tracker tracker = panelTrackersService.getTracker(hash, id);
+        String customerHash = customerService.getCustomerHash(hash, tracker.getUserId().toString());
+        ArrayList<String> trackerIdList = new ArrayList<String>();
+        trackerIdList.add(id);
+        TrackerLastState trackerLastState = apiTrackerService.getTrackerLastState(customerHash,trackerIdList).get(0);
+
+        trackerState.setLabel(tracker.getLabel());
+        trackerState.setCustomerId(tracker.getUserId().toString());
+        trackerState.setTrackerId(tracker.getId().toString());
+        trackerState.setImei(tracker.getSource().getDeviceId());
+        trackerState.setModel(tracker.getSource().getModel());
+        trackerState.setPhoneNumber(tracker.getSource().getPhone());
+        trackerState.setConnectionStatus(tracker.getSource().getConnectionStatus());
+        trackerState.setTariffEndDate(tracker.getSource().getTariffEndDate());
+        Customer trackerCustomer = getCustomer(hash, tracker.getUserId().toString());
+        System.out.println(trackerCustomer);
+
+        if(trackerCustomer != null){
+            String customerName = trackerCustomer.getFirstName() +" "+ trackerCustomer.getMiddleName() + " " + trackerCustomer.getLastName();
+            trackerState.setCustomerName(customerName);
+        }
+
+        if(trackerLastState != null) {
+            if(trackerLastState.getGps() != null) {
+                if(trackerLastState.getGps().getUpdated() != null) {
+                    trackerState.setLastGpsUpdate(trackerLastState.getGps().getUpdated());
+                }
+                if(trackerLastState.getGps().getSignalLevel() != null){
+                    trackerState.setLastGpsSignalLevel(trackerLastState.getGps().getSignalLevel().toString());
+                }
+                if(trackerLastState.getGps().getLocation().getLat() != null) {
+                    trackerState.setLastGpsLatitude(trackerLastState.getGps().getLocation().getLat().toString());
+                }
+                if(trackerLastState.getGps().getLocation().getLng() != null) {
+                    trackerState.setLastGpsLongitude(trackerLastState.getGps().getLocation().getLng().toString());
+                }
+            }
+            if(trackerLastState.getGsm() != null) {
+                if(trackerLastState.getGsm().getSignalLevel() != null) {
+                    trackerState.setGsmSignalLevel(trackerLastState.getGsm().getSignalLevel().toString());
+                }
+                if(trackerLastState.getGsm().getNetworkName() != null){
+                    trackerState.setGsmNetworkName(trackerLastState.getGsm().getNetworkName());
+                }
+            }
+            if(trackerLastState.getBatteryLevel() != null) {
+                trackerState.setLastBatteryLevel(trackerLastState.getBatteryLevel().toString());
+            }
+
+        }
+        return trackerState;
     }
 
 
 
-    /* public LinkedHashSet<TrackerState> filterTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order, Set<TrackerState>trackerStates) {
+    //filters list  of trackerStates
+    public LinkedHashSet<TrackerState> filterTrackers(Optional<String> duration, Optional<String> type, Optional<String> order, Set<TrackerState>trackerStates) {
         order.orElse("dsc");
-        //System.out.println("duration= " + duration.get() + " customerID= " + customerId.get() + " type= " + type.get() + "order= " + order.get() );
+        //System.out.println("duration= " + duration.get() + " type= " + type.get() + "order= " + order.get() );
 
         if (duration.isPresent()) {
             System.out.println("Duration= " + duration.get());
-            trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getLastUpdate().substring(0,10).equals(duration.get())).collect(Collectors.toSet());
+            trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getLastGpsUpdate() != null && trackerState.getLastGpsUpdate().substring(0,10).equals(duration.get())).collect(Collectors.toSet());
         }
-        if (customerId.isPresent()) {
-            System.out.println("customerID present");
-        }
+
         if (type.isPresent()){
             System.out.println("Type= " + type.get());
-            trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getTrackerType().equals(type.get())).collect(Collectors.toSet());
+            trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getModel().equals(type.get())).collect(Collectors.toSet());
         }
         if (order.isPresent()) {
             System.out.println(order.get());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            trackerStates = trackerStates.stream().sorted(Comparator.comparing(TrackerState::getLastUpdate, (date1, date2) -> {
+            trackerStates = trackerStates.stream().sorted(Comparator.comparing(TrackerState::getLastGpsUpdate, (date1, date2) -> {
                 try {
-                    Date d1 = sdf.parse(date1);
-                    Date d2 = sdf.parse(date2);
-                    if(order.get().equals("dsc")) {
-                        return (d1.getTime() > d2.getTime() ? -1 : 1); //descending
-                    } else {
-                        return (d1.getTime() > d2.getTime() ? 1 : -1); //ascending
+                    if(date1 != null & date2 != null) {
+                        Date d1 = sdf.parse(date1);
+                        Date d2 = sdf.parse(date2);
+                        if(order.get().equals("dsc")) {
+                            return (d1.getTime() > d2.getTime() ? -1 : 1); //descending
+                        } else {
+                            return (d1.getTime() > d2.getTime() ? 1 : -1); //ascending
+                        }
                     }
-
                 } catch (ParseException e) {
                     e.printStackTrace();
+                }
+                if(date1 == null || date2 == null) {
+                    return 0;
                 }
                 return date2.compareTo(date1);
             })).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -140,19 +218,26 @@ public class Trackers {
 
         System.out.println(trackerStates);
         return new LinkedHashSet<>(trackerStates);
-    }*/
-
-    public List<Tracker> getTrackerList() throws IOException {
-        String hash = dealerAuthClient.getDealerHash();
-        return panelTrackersService.getTrackerList(hash);
     }
 
-    public List<Customer> getCustomerList() throws IOException {
-        String hash = dealerAuthClient.getDealerHash();
+    //returns a list of trackers which may belong to a customer
+    public List<Tracker> getTrackerList(Optional<String> customerId, String hash) throws IOException {
+        System.out.println(customerId);
+        return panelTrackersService.getTrackerList(hash, customerId);
+    }
+
+    //returns a list of customers from server2
+    public List<Customer> getCustomerList(String hash) throws IOException {
         return customerService.getCustomers(hash);
     }
-    public List<TrackerLastState> getTrackerStateList(String customerId, List<Tracker> trackers) throws IOException {
-        String hash = dealerAuthClient.getDealerHash();
+
+    //returns a customer with an Id = customerId
+    public Customer getCustomer(String hash, String customerId) throws IOException {
+        return customerService.getCustomer(hash, customerId);
+    }
+
+    //returns the last recorded tracker state from server 2
+    public List<TrackerLastState> getTrackerStateList(String customerId, List<Tracker> trackers, String hash) throws IOException {
         String customerHash = customerService.getCustomerHash(hash, customerId);
         List<String> trackerIds = getCustomerTrackerIdList(trackers, customerId);
         if(trackerIds.size() > 0) {
@@ -161,15 +246,15 @@ public class Trackers {
         return null;
     }
 
-
-
-
+    //Bundles all trackerId for a particular customer into a list
     public List<String> getCustomerTrackerIdList(List<Tracker> trackers, String customerId) {
 
         List<Tracker> customerTrackers = trackers.stream().filter(tracker -> tracker.getUserId().toString().equals(customerId)).collect(Collectors.toList());
         List<String> customerTrackerIds = new ArrayList<String>();
         for(Tracker customerTracker: customerTrackers) {
-            customerTrackerIds.add(customerTracker.getId().toString());
+            if(!customerTracker.getDeleted()) { //note that IDs of deleted/hidden trackers are still returned hence their state cannot be retrieved
+                customerTrackerIds.add(customerTracker.getId().toString());
+            }
         }
         return customerTrackerIds;
     }
