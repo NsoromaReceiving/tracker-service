@@ -11,7 +11,7 @@
 
 ## Test API Locally
 Working URLEndPoints
-1. Get TrackerState List `localhost://trackers`
-2. Get TrackerState List for Customer `localhost://trackers/?customerId=105478`
-3. Get TrackerState List for with tracker-type `localhost://trackers/?type=bce_fms500_light_vt`
-4. Get TrackerState with tracker id `localhost://tracker/{395940}`
+1. Get TrackerState List `localhost://trackers`.
+2. Get TrackerState List for Customer `localhost://trackers/?customerId=105478`.
+3. Get TrackerState List for with tracker-type `localhost://trackers/?type=bce_fms500_light_vt`.
+4. Get TrackerState with tracker id `localhost://tracker/{395940}`.
