@@ -10,7 +10,7 @@
 3. execute `mvn clean spring-boot:run` to start server for this repository.
 
 ## Test API Locally
-Working URLEndPoints
+Working URLEndPoints.
 1. Get TrackerState List `localhost://trackers`.
 2. Get TrackerState List for Customer `localhost://trackers/?customerId=105478`.
 3. Get TrackerState List for with tracker-type `localhost://trackers/?type=bce_fms500_light_vt`.
