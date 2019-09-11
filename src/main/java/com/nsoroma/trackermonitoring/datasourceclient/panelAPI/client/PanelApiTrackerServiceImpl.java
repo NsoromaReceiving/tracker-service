@@ -6,6 +6,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
@@ -21,12 +23,15 @@ public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
     String host;
 
     @Override
-    public List<Tracker> getTrackerList(String hash) throws IOException {
-        String trackerUrl = host + "tracker/list/?hash=" + hash;
+    public List<Tracker> getTrackerList(String hash, Optional<String> userId) throws IOException {
+        String trackerURL = "";
+
+        trackerURL = userId.map(s -> host + "tracker/list/?user_id=" + s + "&hash=" + hash).orElseGet(() -> host + "tracker/list/?hash=" + hash);
+        System.out.println(trackerURL);
         List<Tracker> trackerList = new ArrayList<Tracker>();
 
     try{
-        HttpResponse<JsonNode> trackerResponse = Unirest.get(trackerUrl).header("accept", "application/json").asJson();
+        HttpResponse<JsonNode> trackerResponse = Unirest.get(trackerURL).header("accept", "application/json").asJson();
         if(trackerResponse.getStatus() == 200) {
             ObjectMapper objectMapper = new ObjectMapper();
             String trackerObjectString = trackerResponse.getBody().getObject().getJSONArray("list").toString();
@@ -37,5 +42,23 @@ public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
     }
 
         return trackerList;
+    }
+
+    @Override
+    public Tracker getTracker(String hash, String trackerId) throws IOException, UnirestException {
+        String trackerURL = host + "tracker/read/?tracker_id=" + trackerId + "&hash=" + hash;
+        Tracker tracker = new Tracker();
+        try {
+            HttpResponse<JsonNode> trackerResponse = Unirest.get(trackerURL).header("accept", "application/json").asJson();
+            if(trackerResponse.getStatus() == 200) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String trackerObjectString = trackerResponse.getBody().getObject().getString("value");
+                tracker = objectMapper.readValue(trackerObjectString, Tracker.class);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return tracker;
     }
 }
