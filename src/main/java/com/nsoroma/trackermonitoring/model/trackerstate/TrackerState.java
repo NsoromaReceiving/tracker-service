@@ -15,7 +15,8 @@ public class TrackerState {
     private String customerName;
     private String lastGpsUpdate;
     private String lastGpsSignalLevel;
-    private String lastGpsLocation;
+    private String lastGpsLatitude;
+    private String lastGpsLongitude;
     private String lastBatteryLevel;
     private String gsmSignalLevel;
     private String gsmNetworkName;
@@ -53,8 +54,11 @@ public class TrackerState {
     public String getLastGpsSignalLevel() { return lastGpsSignalLevel; }
     public void setLastGpsSignalLevel(String lastGpsSignalLevel) { this.lastGpsSignalLevel = lastGpsSignalLevel; }
 
-    public String getLastGpsLocation() { return lastGpsLocation; }
-    public void setLastGpsLocation(String lastGpsLocation) { this.lastGpsLocation = lastGpsLocation; }
+    public String getLastGpsLatitude() { return lastGpsLatitude; }
+    public void setLastGpsLatitude(String lastGpsLatitude) { this.lastGpsLatitude = lastGpsLatitude; }
+
+    public String getLastGpsLongitude() { return lastGpsLongitude; }
+    public void setLastGpsLongitude(String lastGpsLongitude) { this.lastGpsLongitude = lastGpsLongitude; }
 
     public String getLastBatteryLevel() { return lastBatteryLevel; }
     public void setLastBatteryLevel(String lastBatteryLevel) { this.lastBatteryLevel = lastBatteryLevel; }
