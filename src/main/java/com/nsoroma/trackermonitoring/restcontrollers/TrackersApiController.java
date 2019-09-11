@@ -6,6 +6,7 @@ import com.nsoroma.trackermonitoring.services.Trackers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 
@@ -36,7 +37,7 @@ public class TrackersApiController implements TrackersApi {
         return Optional.ofNullable(request);
     }
 
-    public LinkedHashSet<TrackerState> getTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order) {
+    public LinkedHashSet<TrackerState> getTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order) throws IOException {
         return trackers.getTrackers(duration, customerId, type, order);
     }
 

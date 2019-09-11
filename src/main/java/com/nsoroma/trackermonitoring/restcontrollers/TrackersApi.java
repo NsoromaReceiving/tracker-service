@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.*;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-08-28T15:39:11.130Z")
@@ -38,7 +39,7 @@ public interface TrackersApi {
         return getRequest().map(r -> r.getHeader("Accept"));
     }
 
-    public LinkedHashSet<TrackerState> getTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order );
+    public LinkedHashSet<TrackerState> getTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order ) throws IOException;
 
     @ApiOperation(value = "gets all trackers that meets the criteria set by the list of parameters.", nickname = "trackers", notes = "This provides a list of all trackers and thier data in a descending order of last update time.", response = TrackerState.class, responseContainer = "List", tags={ "developers", })
     @ApiResponses(value = { 
@@ -48,7 +49,7 @@ public interface TrackersApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.GET)
-    default ResponseEntity<LinkedHashSet<TrackerState>> trackers(@ApiParam(value = "'pass the time period to filter by. period format can be 2hr (2 hours) or 2dy (2 days)' ") @Valid @RequestParam(value = "duration", required = false) Optional<String> duration, @ApiParam(value = "pass in the customer Id of a particular customer to fetch trackers registered to that customer.") @Valid @RequestParam(value = "customerId", required = false) Optional<String> customerId, @ApiParam(value = "pass the tracker type to fecth trackers of a particular type") @Valid @RequestParam(value = "type", required = false) Optional<String> type, @ApiParam(value = "if set displays the fetched trackers in order of ascending or descending order of last communiction to the server. Order of ascending signified by (asc) and order of descending signified by (dsc).") @Valid @RequestParam(value = "order", required = false) Optional<String> order) {
+    default ResponseEntity<LinkedHashSet<TrackerState>> trackers(@ApiParam(value = "'pass the time period to filter by. period format can be 2hr (2 hours) or 2dy (2 days)' ") @Valid @RequestParam(value = "duration", required = false) Optional<String> duration, @ApiParam(value = "pass in the customer Id of a particular customer to fetch trackers registered to that customer.") @Valid @RequestParam(value = "customerId", required = false) Optional<String> customerId, @ApiParam(value = "pass the tracker type to fecth trackers of a particular type") @Valid @RequestParam(value = "type", required = false) Optional<String> type, @ApiParam(value = "if set displays the fetched trackers in order of ascending or descending order of last communiction to the server. Order of ascending signified by (asc) and order of descending signified by (dsc).") @Valid @RequestParam(value = "order", required = false) Optional<String> order) throws IOException {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 LinkedHashSet<TrackerState> trackerStates;
