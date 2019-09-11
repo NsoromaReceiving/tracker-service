@@ -7,13 +7,15 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TrackerServiceImpl implements TrackerService {
+@Service
+public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
 
     @Value("${nsoromagps.server2.panelAPI.host}")
     String host;

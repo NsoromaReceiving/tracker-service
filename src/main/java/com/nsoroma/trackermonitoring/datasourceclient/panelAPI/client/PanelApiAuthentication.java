@@ -10,7 +10,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 
 @Service
-public class Authentication {
+public class PanelApiAuthentication {
     @Value("${nsoromagps.server2.panelAPI.host}")
     private String host;
     
@@ -24,7 +24,7 @@ public class Authentication {
 
     private String userHash;
 
-    public Authentication() { }
+    public PanelApiAuthentication() { }
 
     public String getDealerHash() {
         authenticationUrl = host + "account/auth?login=" + username + "&password=" + password;

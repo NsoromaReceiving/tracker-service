@@ -8,12 +8,14 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.datasourceclient.api.model.TrackerLastState;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrackerServiceImpl implements TrackerService {
+@Service
+public class ApiTrackerServiceImpl implements ApiTrackerService {
 
     @Value("${nsoromagps.server2.api.host}")
     String host;
@@ -26,9 +28,10 @@ public class TrackerServiceImpl implements TrackerService {
         for(String trackerId: trackerIdList){
             trackerIds += trackerId +",";
         }
-
+        System.out.println(trackerIds);
         trackerIds = "[" + trackerIds.substring(0, trackerIds.length()-1) + "]";
-        String trackerStateUrl = host + "tracker/get_states/?trackers=" + trackerIds + "&hash" + hash;
+        String trackerStateUrl = host + "tracker/get_states/?trackers=" + trackerIds + "&hash=" + hash;
+        System.out.println(trackerStateUrl);
         List<TrackerLastState> trackerLastStates = new ArrayList<TrackerLastState>();
 
         try {
@@ -36,6 +39,7 @@ public class TrackerServiceImpl implements TrackerService {
             if(trackerStateResponse.getStatus() == 200) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JSONObject trackerStatesObject = trackerStateResponse.getBody().getObject().getJSONObject("states");
+                System.out.println(trackerStatesObject);
                 for (String trackerId: trackerIdList) {
                     String trackerIdStateString = trackerStatesObject.getJSONObject(trackerId.toString()).toString();
                     TrackerLastState trackerLastState = objectMapper.readValue(trackerIdStateString,TrackerLastState.class);
@@ -46,6 +50,7 @@ public class TrackerServiceImpl implements TrackerService {
         } catch (UnirestException e) {
             e.printStackTrace();
         }
+        System.out.println(trackerLastStates);
         return trackerLastStates;
     }
 }

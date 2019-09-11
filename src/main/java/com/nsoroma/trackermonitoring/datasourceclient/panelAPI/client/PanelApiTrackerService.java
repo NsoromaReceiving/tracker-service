@@ -6,7 +6,7 @@ import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
 import java.io.IOException;
 import java.util.List;
 
-public interface TrackerService {
+public interface PanelApiTrackerService {
 
      List<Tracker> getTrackerList(String hash) throws JsonMappingException, IOException;
 
