@@ -5,6 +5,7 @@
  */
 package com.nsoroma.trackermonitoring.restcontrollers;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
@@ -47,6 +48,8 @@ public interface TrackerApi {
         return getRequest().map(r -> r.getHeader("Accept"));
     }
 
+    TrackerState getTracker(String id) throws IOException, UnirestException;
+
     @ApiOperation(value = "returns a tracker with the set ID.", nickname = "trackerID", notes = "fetches and returns a tracker with id as set in the path paramter", response = TrackerState.class, tags={ "developers", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! returns tracker with ID", response = TrackerState.class),
@@ -59,8 +62,8 @@ public interface TrackerApi {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 try {
-                    return new ResponseEntity<>(getObjectMapper().get().readValue("{  \"sourceId\" : \"275959\",  \"gsm\" : {    \"signalLevel\" : \"48\",    \"networkName\" : \"Mtn\",    \"updated\" : \"2019-08-23T08:31:54.000Z\"  },  \"movementStatus\" : \"moving\",  \"trackerType\" : \"bce_fms500_stcan_vt\",  \"gps\" : {    \"signalLevel\" : \"100\",    \"heading\" : \"174\",    \"alt\" : \"52\",    \"location\" : {      \"latitude\" : \"5.620269298553467\",      \"longitude\" : \"-0.19603900611400604\"    },    \"updated\" : \"2019-08-23T08:31:54.000Z\",    \"speed\" : \"57\"  },  \"batteryUpdate\" : \"2019-08-23T08:31:54.000Z\",  \"label\" : \"Blue Corolla\",  \"inputsUpdate\" : \"2019-08-23T08:31:54.000Z\",  \"regNumber\" : \"GE 8000-10\",  \"trackerId\" : \"394000\",  \"trackerImei\" : \"862057043870135\",  \"lastUpdate\" : \"2019-08-23T08:31:54.000Z\",  \"connectionStatus\" : \"idle\",  \"outputsUpdate\" : \"2019-08-23T08:31:54.000Z\",  \"batteryLevel\" : \"100\",  \"actualTrackUpadate\" : \"2019-08-23T08:31:54.000Z\"}", TrackerState.class), HttpStatus.NOT_IMPLEMENTED);
-                } catch (IOException e) {
+                   return new ResponseEntity<>(getTracker(id),HttpStatus.OK);
+                } catch (IOException | UnirestException e) {
                     log.error("Couldn't serialize response for content type application/json", e);
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
