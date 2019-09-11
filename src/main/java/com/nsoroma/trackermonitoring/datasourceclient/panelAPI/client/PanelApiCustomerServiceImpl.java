@@ -40,7 +40,7 @@ public class PanelApiCustomerServiceImpl implements PanelApiCustomerService {
     @Override
     public String getCustomerHash(String hash, String customerId) throws IOException {
         String customerSessionURL = host + "user/session/create/?user_id=" + customerId + "&hash=" + hash;
-        String customerHash = new String();
+        String customerHash = "";
         try {
             HttpResponse<JsonNode> customerSessionResponse = Unirest.get(customerSessionURL).header("accept", "application/json").asJson();
             if(customerSessionResponse.getStatus() == 200) {
@@ -50,5 +50,24 @@ public class PanelApiCustomerServiceImpl implements PanelApiCustomerService {
             e.printStackTrace();
         }
         return customerHash;
+    }
+
+    @Override
+    public Customer getCustomer(String hash, String customerId) throws IOException {
+        String customerURL = host + "user/read/?user_id=" + customerId + "&hash=" + hash;
+        System.out.println(customerURL);
+        Customer customer = new Customer();
+        try {
+            HttpResponse<JsonNode> customerResponse = Unirest.get(customerURL).header("accept", "application/json").asJson();
+            System.out.println(customerResponse.getStatus());
+            if(customerResponse.getStatus() == 200) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String customerObjectString = customerResponse.getBody().getObject().getJSONObject("value").toString();
+                customer = objectMapper.readValue(customerObjectString, Customer.class);
+            }
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        return customer;
     }
 }

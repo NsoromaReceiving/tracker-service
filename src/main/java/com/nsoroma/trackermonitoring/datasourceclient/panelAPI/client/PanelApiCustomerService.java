@@ -11,4 +11,6 @@ public interface PanelApiCustomerService {
 
     String getCustomerHash(String hash, String customerId) throws IOException;
 
+    Customer getCustomer(String hash, String customerId) throws IOException;
+
 }
