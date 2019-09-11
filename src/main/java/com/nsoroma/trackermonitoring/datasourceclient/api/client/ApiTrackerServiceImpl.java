@@ -36,6 +36,7 @@ public class ApiTrackerServiceImpl implements ApiTrackerService {
 
         try {
             HttpResponse<JsonNode> trackerStateResponse = Unirest.get(trackerStateUrl).header("accept","application/json").asJson();
+            System.out.println(trackerStateResponse.getStatus());
             if(trackerStateResponse.getStatus() == 200) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JSONObject trackerStatesObject = trackerStateResponse.getBody().getObject().getJSONObject("states");

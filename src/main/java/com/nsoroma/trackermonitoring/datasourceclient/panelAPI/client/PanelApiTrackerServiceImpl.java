@@ -52,7 +52,7 @@ public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
             HttpResponse<JsonNode> trackerResponse = Unirest.get(trackerURL).header("accept", "application/json").asJson();
             if(trackerResponse.getStatus() == 200) {
                 ObjectMapper objectMapper = new ObjectMapper();
-                String trackerObjectString = trackerResponse.getBody().getObject().getString("value");
+                String trackerObjectString = trackerResponse.getBody().getObject().getJSONObject("value").toString();
                 tracker = objectMapper.readValue(trackerObjectString, Tracker.class);
             }
         } catch (IOException e) {
