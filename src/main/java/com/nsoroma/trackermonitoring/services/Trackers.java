@@ -252,7 +252,7 @@ public class Trackers {
         List<Tracker> customerTrackers = trackers.stream().filter(tracker -> tracker.getUserId().toString().equals(customerId)).collect(Collectors.toList());
         List<String> customerTrackerIds = new ArrayList<String>();
         for(Tracker customerTracker: customerTrackers) {
-            if(!customerTracker.getDeleted()) { //note that IDs of deleted/hidden trackers are still returned hence their state cannot be retrieved
+            if(!customerTracker.getDeleted() && !customerTracker.getSource().getBlocked()) { //note that IDs of deleted/hidden trackers are still returned hence their state cannot be retrieved
                 customerTrackerIds.add(customerTracker.getId().toString());
             }
         }
