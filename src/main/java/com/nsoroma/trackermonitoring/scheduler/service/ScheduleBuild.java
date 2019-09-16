@@ -23,6 +23,7 @@ public class ScheduleBuild {
         jobDataMap.put("lastUpdateDate", schedule.getLastUpdateDate());
         jobDataMap.put("trackerType", schedule.getTrackerType());
         jobDataMap.put("customerId", schedule.getCustomerId());
+        jobDataMap.put("status", schedule.getStatus());
 
         return JobBuilder.newJob(Email.class)
                 .withIdentity(UUID.randomUUID().toString(), "scheduled")

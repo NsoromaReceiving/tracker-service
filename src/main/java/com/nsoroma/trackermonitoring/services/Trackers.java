@@ -39,7 +39,8 @@ public class Trackers {
     public Trackers(){}
 
     //serves api/trackers/?param1=&param2=...
-    public LinkedHashSet<TrackerState> getTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order) throws IOException {
+    public LinkedHashSet<TrackerState> getTrackers(Optional<String> duration, Optional<String> customerId,
+                                                   Optional<String> type, Optional<String> order, Optional<String> status) throws IOException {
 
         String hash = dealerAuthClient.getDealerHash();
         List<Tracker> trackerList = getTrackerList(customerId, hash); //gets list of all trackers on server 2 which may belong to a user
@@ -116,7 +117,7 @@ public class Trackers {
             trackerStates.add(trackerState);
         }
 
-        return new LinkedHashSet<>(filterTrackers(duration,type,order, trackerStates));
+        return new LinkedHashSet<>(filterTrackers(duration,type,order, trackerStates, status));
     }
 
     //serves api/tracker/{id}
@@ -179,9 +180,8 @@ public class Trackers {
 
 
     //filters list  of trackerStates
-    public LinkedHashSet<TrackerState> filterTrackers(Optional<String> duration, Optional<String> type, Optional<String> order, Set<TrackerState>trackerStates) {
+    public LinkedHashSet<TrackerState> filterTrackers(Optional<String> duration, Optional<String> type, Optional<String> order, Set<TrackerState> trackerStates, Optional<String> status) {
         order.orElse("dsc");
-        //System.out.println("duration= " + duration.get() + " type= " + type.get() + "order= " + order.get() );
 
         if (duration.isPresent()) {
             System.out.println("Duration= " + duration.get());
@@ -192,8 +192,14 @@ public class Trackers {
             System.out.println("Type= " + type.get());
             trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getModel().equals(type.get())).collect(Collectors.toSet());
         }
+
+        if(status.isPresent()) {
+            System.out.println("Status = " + status.get());
+            trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getConnectionStatus().equals(status.get())).collect(Collectors.toSet());
+        }
+
         if (order.isPresent()) {
-            System.out.println(order.get());
+            System.out.println("Arrangement Order = " + order.get());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             trackerStates = trackerStates.stream().sorted(Comparator.comparing(TrackerState::getLastGpsUpdate, (date1, date2) -> {
                 try {

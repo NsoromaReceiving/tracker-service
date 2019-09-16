@@ -19,6 +19,7 @@ import javax.activation.FileDataSource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.ByteArrayDataSource;
+import javax.swing.text.html.Option;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -53,12 +54,13 @@ public class Email extends QuartzJobBean {
         Optional<String> lastUpdate = Optional.ofNullable(jobDataMap.getString("lastUpdateDate"));
         Optional<String> trackerType = Optional.ofNullable(jobDataMap.getString("trackerType"));
         Optional<String> customerId = Optional.ofNullable(jobDataMap.getString("customerId"));
+        Optional<String> status = Optional.ofNullable(jobDataMap.getString("status"));
         Optional<String> order = Optional.ofNullable(null);
 
         LinkedHashSet<TrackerState> trackerStates;
 
         try {
-            trackerStates =  trackerService.getTrackers(lastUpdate,customerId,trackerType, order);
+            trackerStates =  trackerService.getTrackers(lastUpdate,customerId,trackerType, order, status);
             Sheet trackerStateSheet = documentsService.generateExcellSheet(trackerStates);
             FileOutputStream fos = new FileOutputStream("tracker.xls");
             trackerStateSheet.getWorkbook().write(fos);
