@@ -42,4 +42,9 @@ public class TrackerApiController implements TrackerApi {
         return trackers.getTracker(id);
     }
 
+    @Override
+    public TrackerState getTrackerByImei(String imei) throws IOException, UnirestException {
+        return trackers.getTrackerByImei(imei);
+    }
+
 }

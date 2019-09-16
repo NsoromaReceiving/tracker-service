@@ -52,7 +52,6 @@ public class Trackers {
             List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customerId.get(),trackerList,hash);
             System.out.println(customerTrackerLastStateList);
             if(customerTrackerLastStateList != null) {
-                System.out.println("came here");
                 trackerLastStateList.addAll(customerTrackerLastStateList);
             }
         } else {
@@ -130,53 +129,28 @@ public class Trackers {
         trackerIdList.add(id);
         TrackerLastState trackerLastState = apiTrackerService.getTrackerLastState(customerHash,trackerIdList).get(0);
 
-        trackerState.setLabel(tracker.getLabel());
-        trackerState.setCustomerId(tracker.getUserId().toString());
-        trackerState.setTrackerId(tracker.getId().toString());
-        trackerState.setImei(tracker.getSource().getDeviceId());
-        trackerState.setModel(tracker.getSource().getModel());
-        trackerState.setPhoneNumber(tracker.getSource().getPhone());
-        trackerState.setConnectionStatus(tracker.getSource().getConnectionStatus());
-        trackerState.setTariffEndDate(tracker.getSource().getTariffEndDate());
-        Customer trackerCustomer = getCustomer(hash, tracker.getUserId().toString());
-        System.out.println(trackerCustomer);
-
-        if(trackerCustomer != null){
-            String customerName = trackerCustomer.getFirstName() +" "+ trackerCustomer.getMiddleName() + " " + trackerCustomer.getLastName();
-            trackerState.setCustomerName(customerName);
-        }
-
-        if(trackerLastState != null) {
-            if(trackerLastState.getGps() != null) {
-                if(trackerLastState.getGps().getUpdated() != null) {
-                    trackerState.setLastGpsUpdate(trackerLastState.getGps().getUpdated());
-                }
-                if(trackerLastState.getGps().getSignalLevel() != null){
-                    trackerState.setLastGpsSignalLevel(trackerLastState.getGps().getSignalLevel().toString());
-                }
-                if(trackerLastState.getGps().getLocation().getLat() != null) {
-                    trackerState.setLastGpsLatitude(trackerLastState.getGps().getLocation().getLat().toString());
-                }
-                if(trackerLastState.getGps().getLocation().getLng() != null) {
-                    trackerState.setLastGpsLongitude(trackerLastState.getGps().getLocation().getLng().toString());
-                }
-            }
-            if(trackerLastState.getGsm() != null) {
-                if(trackerLastState.getGsm().getSignalLevel() != null) {
-                    trackerState.setGsmSignalLevel(trackerLastState.getGsm().getSignalLevel().toString());
-                }
-                if(trackerLastState.getGsm().getNetworkName() != null){
-                    trackerState.setGsmNetworkName(trackerLastState.getGsm().getNetworkName());
-                }
-            }
-            if(trackerLastState.getBatteryLevel() != null) {
-                trackerState.setLastBatteryLevel(trackerLastState.getBatteryLevel().toString());
-            }
-
-        }
-        return trackerState;
+        return setTrackerStateData(tracker,trackerLastState,trackerState,hash);
     }
 
+    //serves api/tracker/imei/{imei}
+    public TrackerState getTrackerByImei(String imei) throws IOException, UnirestException {
+        System.out.println(imei);
+        TrackerState trackerState = new TrackerState();
+        String hash = dealerAuthClient.getDealerHash();
+        List<Tracker> trackerList = panelTrackersService.getTrackerList(hash, Optional.empty());
+        Tracker tracker = trackerList.stream().filter(trackers -> trackers.getSource().getDeviceId().equals(imei)).toArray(Tracker[]::new)[0];
+        String customerHash = customerService.getCustomerHash(hash, tracker.getUserId().toString());
+        ArrayList<String> trackerIdList = new ArrayList<String>();
+        trackerIdList.add(tracker.getId().toString());
+        TrackerLastState trackerLastState = apiTrackerService.getTrackerLastState(customerHash,trackerIdList).get(0);
+
+        return setTrackerStateData(tracker,trackerLastState,trackerState,hash);
+    }
+
+
+
+
+    /********helper functions ********/
 
 
     //filters list  of trackerStates
@@ -263,6 +237,57 @@ public class Trackers {
             }
         }
         return customerTrackerIds;
+    }
+
+
+    //Sets TrackerState Object values
+    public TrackerState setTrackerStateData(Tracker tracker, TrackerLastState trackerLastState, TrackerState trackerState, String hash) throws IOException {
+        trackerState.setLabel(tracker.getLabel());
+        trackerState.setCustomerId(tracker.getUserId().toString());
+        trackerState.setTrackerId(tracker.getId().toString());
+        trackerState.setImei(tracker.getSource().getDeviceId());
+        trackerState.setModel(tracker.getSource().getModel());
+        trackerState.setPhoneNumber(tracker.getSource().getPhone());
+        trackerState.setConnectionStatus(tracker.getSource().getConnectionStatus());
+        trackerState.setTariffEndDate(tracker.getSource().getTariffEndDate());
+        Customer trackerCustomer = getCustomer(hash, tracker.getUserId().toString());
+        System.out.println(trackerCustomer);
+
+        if(trackerCustomer != null){
+            String customerName = trackerCustomer.getFirstName() +" "+ trackerCustomer.getMiddleName() + " " + trackerCustomer.getLastName();
+            trackerState.setCustomerName(customerName);
+        }
+
+        if(trackerLastState != null) {
+            if(trackerLastState.getGps() != null) {
+                if(trackerLastState.getGps().getUpdated() != null) {
+                    trackerState.setLastGpsUpdate(trackerLastState.getGps().getUpdated());
+                }
+                if(trackerLastState.getGps().getSignalLevel() != null){
+                    trackerState.setLastGpsSignalLevel(trackerLastState.getGps().getSignalLevel().toString());
+                }
+                if(trackerLastState.getGps().getLocation().getLat() != null) {
+                    trackerState.setLastGpsLatitude(trackerLastState.getGps().getLocation().getLat().toString());
+                }
+                if(trackerLastState.getGps().getLocation().getLng() != null) {
+                    trackerState.setLastGpsLongitude(trackerLastState.getGps().getLocation().getLng().toString());
+                }
+            }
+            if(trackerLastState.getGsm() != null) {
+                if(trackerLastState.getGsm().getSignalLevel() != null) {
+                    trackerState.setGsmSignalLevel(trackerLastState.getGsm().getSignalLevel().toString());
+                }
+                if(trackerLastState.getGsm().getNetworkName() != null){
+                    trackerState.setGsmNetworkName(trackerLastState.getGsm().getNetworkName());
+                }
+            }
+            if(trackerLastState.getBatteryLevel() != null) {
+                trackerState.setLastBatteryLevel(trackerLastState.getBatteryLevel().toString());
+            }
+
+        }
+
+        return trackerState;
     }
 
 }

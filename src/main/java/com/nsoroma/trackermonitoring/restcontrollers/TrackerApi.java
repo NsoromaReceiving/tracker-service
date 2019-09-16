@@ -50,6 +50,9 @@ public interface TrackerApi {
 
     TrackerState getTracker(String id) throws IOException, UnirestException;
 
+    TrackerState getTrackerByImei(String Imei) throws IOException, UnirestException;
+
+    //rest controller for host/tracker/{id}
     @ApiOperation(value = "returns a tracker with the set ID.", nickname = "trackerID", notes = "fetches and returns a tracker with id as set in the path paramter", response = TrackerState.class, tags={ "developers", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! returns tracker with ID", response = TrackerState.class),
@@ -63,6 +66,32 @@ public interface TrackerApi {
             if (getAcceptHeader().get().contains("application/json")) {
                 try {
                    return new ResponseEntity<>(getTracker(id),HttpStatus.OK);
+                } catch (IOException | UnirestException e) {
+                    log.error("Couldn't serialize response for content type application/json", e);
+                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        } else {
+            log.warn("ObjectMapper or HttpServletRequest not configured in default TrackerApi interface so no example is generated");
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    }
+
+
+    //rest controller for host/tracker/imei/{imei}
+    @ApiOperation(value = "returns a tracker with the set IMEI.", nickname = "trackerIMEI", notes = "fetches and returns a tracker with imei as set in the path paramter", response = TrackerState.class, tags={ "developers", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success! returns tracker with Imei", response = TrackerState.class),
+            @ApiResponse(code = 400, message = "bad path parameter") })
+    @RequestMapping(value = "/tracker/imei/{imei}",
+            produces = { "application/json" },
+            consumes = { "application/json" },
+            method = RequestMethod.GET)
+    default ResponseEntity<TrackerState> trackerByImei(@ApiParam(value = "", required = true) @PathVariable("imei") String imei) {
+        if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+            if (getAcceptHeader().get().contains("application/json")) {
+                try {
+                    return new ResponseEntity<>(getTrackerByImei(imei),HttpStatus.OK);
                 } catch (IOException | UnirestException e) {
                     log.error("Couldn't serialize response for content type application/json", e);
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
