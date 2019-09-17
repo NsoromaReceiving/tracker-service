@@ -19,7 +19,8 @@ public class ScheduleBuild {
         jobDataMap.put("body", "Please find attach a data interval file");
         jobDataMap.put("scheduleId", schedule.getScheduleId());
         jobDataMap.put("alertFrequency",schedule.getAlertFrequency());
-        jobDataMap.put("alertTime", schedule.getAlertTime());
+        jobDataMap.put("alertTime", schedule.getAlertTime().toString());
+        jobDataMap.put("zoneId", schedule.getZoneId().toString());
         jobDataMap.put("lastUpdateDate", schedule.getLastUpdateDate());
         jobDataMap.put("trackerType", schedule.getTrackerType());
         jobDataMap.put("customerId", schedule.getCustomerId());
