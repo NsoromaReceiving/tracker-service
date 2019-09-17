@@ -51,6 +51,8 @@ public interface SchedulesApi {
 
     public Date scheduleJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException;
 
+    public List<Schedule> getSchedules() throws SchedulerException;
+
     @ApiOperation(value = "creates a new schedule", nickname = "newSchedule", notes = "creates a new schedule to alert the subscriber based on the schedule settings", tags={ "developers", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Success! schedule created"),
@@ -91,15 +93,10 @@ public interface SchedulesApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.GET)
-    default ResponseEntity<List<Schedule>> scheduleProfiles() {
+    default ResponseEntity<List<Schedule>> scheduleProfiles() throws SchedulerException {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
-                try {
-                    return new ResponseEntity<>(getObjectMapper().get().readValue("[ {  \"receiver\" : [ {    \"name\" : \"Harry\",    \"email\" : \"hello@nsoroma.com\"  }, {    \"name\" : \"Harry\",    \"email\" : \"hello@nsoroma.com\"  } ],  \"trackerType\" : \"navixy\",  \"customerId\" : \"horgle\",  \"alertFrequency\" : \"once, daily\",  \"trackerLastUpdateDate\" : \"2dy, 2hr\",  \"alertTime\" : \"6:00 am\",  \"scheduleId\" : \"scheduleID\"}, {  \"receiver\" : [ {    \"name\" : \"Harry\",    \"email\" : \"hello@nsoroma.com\"  }, {    \"name\" : \"Harry\",    \"email\" : \"hello@nsoroma.com\"  } ],  \"trackerType\" : \"navixy\",  \"customerId\" : \"horgle\",  \"alertFrequency\" : \"once, daily\",  \"trackerLastUpdateDate\" : \"2dy, 2hr\",  \"alertTime\" : \"6:00 am\",  \"scheduleId\" : \"scheduleID\"} ]", List.class), HttpStatus.NOT_IMPLEMENTED);
-                } catch (IOException e) {
-                    log.error("Couldn't serialize response for content type application/json", e);
-                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+                return new ResponseEntity<>(getSchedules(), HttpStatus.OK);
             }
         } else {
             log.warn("ObjectMapper or HttpServletRequest not configured in default SchedulesApi interface so no example is generated");
