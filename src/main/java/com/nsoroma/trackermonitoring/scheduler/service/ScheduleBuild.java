@@ -14,9 +14,20 @@ public class ScheduleBuild {
     public JobDetail buildScheduleDetail(Schedule schedule) {
         JobDataMap jobDataMap = new JobDataMap();
 
+        if(schedule.getScheduleId() == null) { // to enable reuse in in updating a schedule
+            String scheduleId = UUID.randomUUID().toString();
+            schedule.setScheduleId(scheduleId);
+        }
+
+        System.out.println(schedule.getScheduleId());
+
         jobDataMap.put("email", schedule.getEmail());
-        jobDataMap.put("subject", "Tracker Monitoring Alert");
-        jobDataMap.put("body", "Please find attach a data interval file");
+        jobDataMap.put("subject", schedule.getSubject());
+        jobDataMap.put("body", "Please find attached the data intervals for filter parameters: / " +
+                "Last Update Date : " + schedule.getLastUpdateDate() +
+                " / Tracker Type : " + schedule.getTrackerType() +
+                " / Customer Id : " + schedule.getCustomerId() +
+                " / Status : " + schedule.getStatus());
         jobDataMap.put("scheduleId", schedule.getScheduleId());
         jobDataMap.put("alertFrequency",schedule.getAlertFrequency());
         jobDataMap.put("alertTime", schedule.getAlertTime().toString());
@@ -27,8 +38,8 @@ public class ScheduleBuild {
         jobDataMap.put("status", schedule.getStatus());
 
         return JobBuilder.newJob(Email.class)
-                .withIdentity(UUID.randomUUID().toString(), "scheduled")
-                .withDescription("execute schedule for trackers")
+                .withIdentity(schedule.getScheduleId(), "NsoromaTrackerMonitoringSystemJobs")
+                .withDescription("execute schedules for the tracker monitoring system")
                 .usingJobData(jobDataMap)
                 .storeDurably()
                 .build();
@@ -37,8 +48,8 @@ public class ScheduleBuild {
     public Trigger buildScheduleTrigger(JobDetail jobDetail, ZonedDateTime startTime) {
         return TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
-                .withIdentity(jobDetail.getKey().getName(), "schedule-triggers")
-                .withDescription("trigger schedule")
+                .withIdentity(jobDetail.getKey().getName(), "NsoromaTrackerMonitoringSystemTriggers")
+                .withDescription("triggers for the Nsoroma tracker monitoring system")
                 .startAt(Date.from(startTime.toInstant()))
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
                 .build();
