@@ -46,12 +46,26 @@ public class ScheduleBuild {
     }
 
     public Trigger buildScheduleTrigger(JobDetail jobDetail, ZonedDateTime startTime) {
-        return TriggerBuilder.newTrigger()
-                .forJob(jobDetail)
-                .withIdentity(jobDetail.getKey().getName(), "NsoromaTrackerMonitoringSystemTriggers")
-                .withDescription("triggers for the Nsoroma tracker monitoring system")
-                .startAt(Date.from(startTime.toInstant()))
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
-                .build();
+
+        String alertFrequency = jobDetail.getJobDataMap().getString("alertFrequency");
+
+        if (alertFrequency.equals("everyday")) {
+            return TriggerBuilder.newTrigger()
+                    .forJob(jobDetail)
+                    .withIdentity(jobDetail.getKey().getName(), "NsoromaTrackerMonitoringSystemTriggers")
+                    .withDescription("triggers for the Nsoroma tracker monitoring system")
+                    .startAt(Date.from(startTime.toInstant()))
+                    .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(2).withMisfireHandlingInstructionFireNow())
+                    .build();
+        } else {
+            return TriggerBuilder.newTrigger()
+                    .forJob(jobDetail)
+                    .withIdentity(jobDetail.getKey().getName(), "NsoromaTrackerMonitoringSystemTriggers")
+                    .withDescription("triggers for the Nsoroma tracker monitoring system")
+                    .startAt(Date.from(startTime.toInstant()))
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+                    .build();
+        }
+
     }
 }
