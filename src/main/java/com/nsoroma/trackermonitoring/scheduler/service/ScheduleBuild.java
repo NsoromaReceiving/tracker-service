@@ -55,7 +55,7 @@ public class ScheduleBuild {
                     .withIdentity(jobDetail.getKey().getName(), "NsoromaTrackerMonitoringSystemTriggers")
                     .withDescription("triggers for the Nsoroma tracker monitoring system")
                     .startAt(Date.from(startTime.toInstant()))
-                    .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(2).withMisfireHandlingInstructionFireNow())
+                    .withSchedule(SimpleScheduleBuilder.repeatHourlyForever(24).withMisfireHandlingInstructionFireNow())
                     .build();
         } else {
             return TriggerBuilder.newTrigger()
