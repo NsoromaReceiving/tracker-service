@@ -8,6 +8,7 @@ import org.apache.poi.xssf.streaming.SheetDataWriter;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -44,6 +45,9 @@ public class Email extends QuartzJobBean {
     @Autowired
     private DocumentsService documentsService;
 
+    @Autowired
+    private ScheduleService scheduleService;
+
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         System.out.println("executing schedule");
@@ -56,6 +60,7 @@ public class Email extends QuartzJobBean {
         Optional<String> customerId = Optional.ofNullable(jobDataMap.getString("customerId"));
         Optional<String> status = Optional.ofNullable(jobDataMap.getString("status"));
         Optional<String> order = Optional.ofNullable(null);
+        Optional<String> alertFrequency = Optional.ofNullable(jobDataMap.getString("alertFrequency"));
 
         LinkedHashSet<TrackerState> trackerStates;
 
@@ -67,7 +72,13 @@ public class Email extends QuartzJobBean {
             fos.close();
             FileDataSource source = new FileDataSource("tracker.xls");
             sendMail(mailProperties.getUsername(), receiverMail, subject, body, source);
-        } catch (IOException e) {
+            if(alertFrequency.isPresent()){
+                if (alertFrequency.get().equals("once")) {
+                    String scheduleId = Optional.ofNullable(jobDataMap.getString("scheduleId")).get();
+                    scheduleService.deleteSchedule(scheduleId);
+                }
+            }
+        } catch (IOException | SchedulerException e) {
             e.printStackTrace();
         }
 
