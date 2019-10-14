@@ -8,27 +8,16 @@ package com.nsoroma.trackermonitoring.restcontrollers;
 import com.nsoroma.trackermonitoring.model.schedule.Schedule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
-import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
-import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
+
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-09-12T18:13:17.843Z")
 
 @Api(value = "schedule", description = "the schedule API")
@@ -48,21 +37,20 @@ public interface ScheduleApi {
         return getRequest().map(r -> r.getHeader("Accept"));
     }
 
-    public Schedule getSchedule(String id) throws SchedulerException;
+    public Schedule getSchedule(String id);
 
-    public Boolean deleteSchedule(String id) throws SchedulerException;
+    public Boolean deleteSchedule(String id);
 
-    public Boolean updateSchedule(String id, Schedule schedule) throws  SchedulerException;
+    public Boolean updateSchedule(String id, Schedule schedule);
 
     @ApiOperation(value = "deletes a schedule with the set ID.", nickname = "scheduleDelete", notes = "deletes a schedule with id as set in the path paramter", tags={ "developers", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! deleted schedule with ID"),
         @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/schedule/{id}",
-        produces = { "application/json" }, 
-        consumes = { "application/json" },
+    @RequestMapping(value = "/api/schedule/{id}",
         method = RequestMethod.DELETE)
-    default ResponseEntity<Void> scheduleDelete(@ApiParam(value = "", required = true) @PathVariable("id") String id) throws SchedulerException {
+    @CrossOrigin
+    default ResponseEntity<Void> scheduleDelete(@ApiParam(value = "", required = true) @PathVariable("id") String id){
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
             if(deleteSchedule(id)) {
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -71,8 +59,8 @@ public interface ScheduleApi {
             }
         } else {
             log.warn("ObjectMapper or HttpServletRequest not configured in default ScheduleApi interface so no example is generated");
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
 
@@ -80,19 +68,14 @@ public interface ScheduleApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! returns schedule with ID", response = Schedule.class),
         @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/schedule/{id}",
-        produces = { "application/json" }, 
-        consumes = { "application/json" },
+    @RequestMapping(value = "/api/schedule/{id}",
+        produces = { "application/json" },
         method = RequestMethod.GET)
+    @CrossOrigin
     default ResponseEntity<Schedule> scheduleId(@ApiParam(value = "", required = true) @PathVariable("id") String id) {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
-                try {
-                    return new ResponseEntity<>(getSchedule(id), HttpStatus.OK);
-                } catch (SchedulerException e) {
-                    log.error("Couldn't serialize response for content type application/json", e);
-                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+                return new ResponseEntity<>(getSchedule(id), HttpStatus.OK);
             }
         } else {
             log.warn("ObjectMapper or HttpServletRequest not configured in default ScheduleApi interface so no example is generated");
@@ -105,11 +88,11 @@ public interface ScheduleApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! updated schedule with ID"),
         @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/schedule/{id}",
-        produces = { "application/json" }, 
+    @RequestMapping(value = "/api/schedule/{id}",
         consumes = { "application/json" },
         method = RequestMethod.PUT)
-    default ResponseEntity<Void> scheduleUpdate(@ApiParam(value = "", required = true) @PathVariable("id") String id, @ApiParam(value = "", required = true) @Valid @RequestBody Schedule scheduleUpdate) throws SchedulerException {
+    @CrossOrigin
+    default ResponseEntity<Void> scheduleUpdate(@ApiParam(value = "", required = true) @PathVariable("id") String id, @ApiParam(value = "", required = true) @Valid @RequestBody Schedule scheduleUpdate) {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
             if(updateSchedule(id, scheduleUpdate)) {
 

@@ -2,8 +2,7 @@ package com.nsoroma.trackermonitoring.restcontrollers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nsoroma.trackermonitoring.model.schedule.Schedule;
-import com.nsoroma.trackermonitoring.scheduler.service.ScheduleService;
-import org.quartz.SchedulerException;
+import com.nsoroma.trackermonitoring.scheduler.service.ScheduleClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +13,7 @@ import java.util.Optional;
 public class ScheduleApiController implements ScheduleApi {
 
     @Autowired
-    ScheduleService scheduleService;
+    ScheduleClient scheduleClient;
 
     private final ObjectMapper objectMapper;
 
@@ -37,18 +36,18 @@ public class ScheduleApiController implements ScheduleApi {
     }
 
     @Override
-    public Schedule getSchedule(String id) throws SchedulerException {
-        return scheduleService.getSchedule(id);
+    public Schedule getSchedule(String id) {
+        return scheduleClient.getSchedule(id);
     }
 
     @Override
-    public  Boolean deleteSchedule(String id) throws SchedulerException {
-        return scheduleService.deleteSchedule(id);
+    public  Boolean deleteSchedule(String id) {
+        return scheduleClient.deleteSchedule(id);
     }
 
     @Override
-    public  Boolean updateSchedule(String id, Schedule schedule) throws SchedulerException {
-        return scheduleService.updateSchedule(id, schedule);
+    public  Boolean updateSchedule(String id, Schedule schedule) {
+        return scheduleClient.updateSchedule(id, schedule);
     }
 
 }

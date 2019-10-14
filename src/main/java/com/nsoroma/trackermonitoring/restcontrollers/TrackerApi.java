@@ -13,21 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-08-28T15:39:11.130Z")
 
@@ -57,10 +49,10 @@ public interface TrackerApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! returns tracker with ID", response = TrackerState.class),
         @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/tracker/{id}",
-        produces = { "application/json" }, 
-        consumes = { "application/json" },
+    @RequestMapping(value = "/api/tracker/{id}",
+        produces = { "application/json" },
         method = RequestMethod.GET)
+    @CrossOrigin
     default ResponseEntity<TrackerState> trackerID(@ApiParam(value = "", required = true) @PathVariable("id") String id) {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
@@ -70,11 +62,13 @@ public interface TrackerApi {
                     log.error("Couldn't serialize response for content type application/json", e);
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
             }
         } else {
             log.warn("ObjectMapper or HttpServletRequest not configured in default TrackerApi interface so no example is generated");
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
 
@@ -83,10 +77,10 @@ public interface TrackerApi {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success! returns tracker with Imei", response = TrackerState.class),
             @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/tracker/imei/{imei}",
+    @RequestMapping(value = "/api/tracker/imei/{imei}",
             produces = { "application/json" },
-            consumes = { "application/json" },
             method = RequestMethod.GET)
+    @CrossOrigin
     default ResponseEntity<TrackerState> trackerByImei(@ApiParam(value = "", required = true) @PathVariable("imei") String imei) {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
@@ -96,11 +90,13 @@ public interface TrackerApi {
                     log.error("Couldn't serialize response for content type application/json", e);
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
             }
         } else {
             log.warn("ObjectMapper or HttpServletRequest not configured in default TrackerApi interface so no example is generated");
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
 }

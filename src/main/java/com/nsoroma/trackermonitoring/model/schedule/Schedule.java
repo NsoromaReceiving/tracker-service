@@ -9,7 +9,8 @@ public class Schedule {
     private String alertFrequency;
     private LocalDateTime alertTime;
     private ZoneId zoneId;
-    private String lastUpdateDate;
+    private String startDate;
+    private String endDate;
     private String trackerType;
     private String customerId;
     private String email;
@@ -45,12 +46,15 @@ public class Schedule {
     public ZoneId getZoneId() { return zoneId; }
     public void setZoneId(ZoneId zoneId) { this.zoneId = zoneId; }
 
-    public String getLastUpdateDate() {
-        return lastUpdateDate;
+    public String getStartDate() {
+        return startDate;
     }
-    public void setLastUpdateDate(String lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
+    public void setStartDate(String startDate) { this.startDate = startDate; }
+
+    public String getEndDate() {
+        return endDate;
     }
+    public void setEndDate(String endDate) { this.endDate = endDate; }
 
     public String getScheduleId() {
         return scheduleId;

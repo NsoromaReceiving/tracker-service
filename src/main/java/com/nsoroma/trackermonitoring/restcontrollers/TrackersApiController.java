@@ -37,8 +37,9 @@ public class TrackersApiController implements TrackersApi {
         return Optional.ofNullable(request);
     }
 
-    public LinkedHashSet<TrackerState> getTrackers(Optional<String> duration, Optional<String> customerId, Optional<String> type, Optional<String> order, Optional<String> status) throws IOException {
-        return trackers.getTrackers(duration, customerId, type, order, status);
+    public LinkedHashSet<TrackerState> getTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> customerId,
+                                                                      Optional<String> type, Optional<String> order, Optional<String> status) throws IOException {
+        return trackers.getTrackers(startDate, endDate, customerId, type, order, status);
     }
 
 }
