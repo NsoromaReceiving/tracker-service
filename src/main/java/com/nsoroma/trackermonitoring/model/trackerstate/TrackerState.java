@@ -1,11 +1,12 @@
 
 package com.nsoroma.trackermonitoring.model.trackerstate;
-
+import org.springframework.data.annotation.Id;
 
 public class TrackerState {
 
     private String label;
     private String customerId;
+    @Id
     private String trackerId;
     private String Imei;
     private String model;
