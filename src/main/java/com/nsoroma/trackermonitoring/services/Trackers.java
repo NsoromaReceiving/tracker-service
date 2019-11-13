@@ -17,6 +17,7 @@ import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Customer;
 import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 
+import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,9 @@ public class Trackers {
     private
     ApiTrackerService apiTrackerService;
 
+    @Autowired
+    private TrackerStateRepository trackerStateRepository;
+
     public Trackers(){}
 
     //serves api/trackers/?param1=&param2=...
@@ -62,7 +66,8 @@ public class Trackers {
                 }
             }
         } else {
-            for(Customer customer: customerList) {
+            //old method
+            /*for(Customer customer: customerList) {
                 List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customer.getId().toString(),trackerList,hash);
                 List<Tracker> customerTrackers = trackerList.parallelStream().filter(tracker -> tracker.getUserId().toString().equals(customer.getId().toString())).collect(Collectors.toList());
                 if (customerTrackerLastStateList != null && customerTrackerLastStateList.size() > 0) {
@@ -72,7 +77,10 @@ public class Trackers {
                     }
                 }
 
-            }
+            }*/
+
+            trackerStates.addAll(trackerStateRepository.findAll());
+
         }
 
         return new LinkedHashSet<>(filterTrackers(startDate, endDate, type,order, trackerStates, status));
