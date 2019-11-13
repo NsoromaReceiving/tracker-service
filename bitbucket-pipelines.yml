@@ -24,3 +24,7 @@ pipelines:
           - docker push $IMAGE
 
 ##Frank wants a demo
+definitions:
+  services:
+    docker:
+      memory: 2048  #increasing docker memory size
