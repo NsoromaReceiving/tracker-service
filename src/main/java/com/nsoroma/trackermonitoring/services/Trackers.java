@@ -86,6 +86,28 @@ public class Trackers {
         return new LinkedHashSet<>(filterTrackers(startDate, endDate, type,order, trackerStates, status));
     }
 
+
+    //get all trackers' states
+    public LinkedHashSet<TrackerState> getAllTrackerStates() throws IOException {
+        String hash = dealerAuthClient.getDealerHash();
+        List<Tracker> trackerList = getTrackerList(Optional.empty(), hash); //gets list of all trackers on server 2 which may belong to a user
+        List<Customer> customerList = getCustomerList(hash);
+        Set<TrackerState> trackerStates = new HashSet<>(Collections.emptySet());
+
+        for(Customer customer: customerList) {
+            List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customer.getId().toString(), trackerList, hash);
+            List<Tracker> customerTrackers = trackerList.parallelStream().filter(tracker -> tracker.getUserId().toString().equals(customer.getId().toString())).collect(Collectors.toList());
+            if (customerTrackerLastStateList != null && customerTrackerLastStateList.size() > 0) {
+                for (TrackerLastState trackerLastState : customerTrackerLastStateList) {
+                    TrackerState trackerState = new TrackerState();
+                    trackerStates.add(trackerStateData(trackerState, customerTrackers, trackerLastState, customer));
+                }
+            }
+        }
+
+        return new LinkedHashSet<>(trackerStates);
+    }
+
     //serves api/tracker/{id}
     public TrackerState getTracker(String id) throws IOException, UnirestException {
         TrackerState trackerState = new TrackerState();

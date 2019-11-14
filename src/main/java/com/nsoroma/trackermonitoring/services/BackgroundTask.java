@@ -25,7 +25,7 @@ public class BackgroundTask {
     @Scheduled(fixedDelay = 100000)
     public void getNewTrackerStates() throws IOException {
         System.out.println("Getting Tracker State Updates at - " + formatter.format(LocalDateTime.now()));
-        LinkedHashSet<TrackerState> trackersList =  trackers.getTrackers(java.util.Optional.empty(), java.util.Optional.empty(), java.util.Optional.empty(), java.util.Optional.empty(), java.util.Optional.empty(), java.util.Optional.empty());
+        LinkedHashSet<TrackerState> trackersList =  trackers.getAllTrackerStates();
         System.out.println(trackersList);
         trackerStateRepository.saveAll(trackersList);
     }
