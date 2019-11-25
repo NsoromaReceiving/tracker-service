@@ -146,7 +146,8 @@ public class Trackers {
     private LinkedHashSet<TrackerState> filterTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> type, Optional<String> order, Set<TrackerState> trackerStates, Optional<String> status) {
         order.orElse("dsc");
 
-        if (startDate.isPresent() && endDate.isPresent()) {
+        //old code
+        /*if (startDate.isPresent() && endDate.isPresent()) {
             System.out.println("Start Date = " + startDate.get() + "End Date = " + endDate.get());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             trackerStates = trackerStates.stream().filter(trackerState -> {
@@ -159,18 +160,51 @@ public class Trackers {
                 }
                 return false;
             }).collect(Collectors.toSet());
+        }*/
+
+        //new code start date
+        if(startDate.isPresent()) {
+            System.out.println("Start Date : " + startDate.get());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            trackerStates = trackerStates.stream().filter(trackerState -> {
+                try {
+                    return trackerState.getLastGpsUpdate() != null &&
+                            sdf.parse(trackerState.getLastGpsUpdate()).after(sdf.parse(startDate.get()));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }).collect(Collectors.toSet());
         }
 
+        //new code end date
+        if(endDate.isPresent()) {
+            System.out.println("End Date : " + endDate.get());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            trackerStates = trackerStates.stream().filter(trackerState -> {
+                try {
+                    return trackerState.getLastGpsUpdate() != null &&
+                            sdf.parse(trackerState.getLastGpsUpdate()).before(sdf.parse(endDate.get()));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }).collect(Collectors.toSet());
+        }
+
+        // filter type
         if (type.isPresent()){
             System.out.println("Type= " + type.get());
             trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getModel().equals(type.get())).collect(Collectors.toSet());
         }
 
+        //filter status
         if(status.isPresent()) {
             System.out.println("Status = " + status.get());
             trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getConnectionStatus().equals(status.get())).collect(Collectors.toSet());
         }
 
+        //filter order
         if (order.isPresent()) {
             System.out.println("Arrangement Order = " + order.get());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
