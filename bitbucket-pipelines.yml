@@ -10,7 +10,9 @@ pipelines:
     - step: &sonarqube
           name: analyze with hawkman sonarqube server
           script:
-             - mvn clean package sonar:sonar -Dsonar.projectKey=n-t-m-s -Dsonar.host.url=http://165.22.120.243:9000 -Dsonar.login=6fe927cb875c24260c41660607b8209bc40e1c94
+             - mvn clean install
+             - mvn org.jacoco:jacoco-maven-plugin:prepare-agent install
+             - mvn sonar:sonar -Dsonar.test=src/test -Dsonar.projectKey=n-t-m-s -Dsonar.host.url=http://165.22.120.243:9000 -Dsonar.login=6fe927cb875c24260c41660607b8209bc40e1c94
 
     - step: &build-deploy-docker
         name: build and deploy to docker-hub
