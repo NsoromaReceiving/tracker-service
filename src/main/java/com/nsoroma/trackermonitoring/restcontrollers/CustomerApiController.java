@@ -1,6 +1,7 @@
 package com.nsoroma.trackermonitoring.restcontrollers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
 import com.nsoroma.trackermonitoring.services.Customers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class CustomerApiController implements CustomerApi {
     }
 
     @Override
-    public List<SlimCustomer> getCustomers() throws IOException {
+    public List<SlimCustomer> getCustomers() throws IOException, UnirestException {
         return customers.getCustomers();
     }
 
