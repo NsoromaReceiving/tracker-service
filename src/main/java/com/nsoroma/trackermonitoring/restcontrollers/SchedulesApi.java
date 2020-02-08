@@ -55,7 +55,7 @@ public interface SchedulesApi {
     @CrossOrigin
     default ResponseEntity<Void> newSchedule(@ApiParam(value = "", required = true) @Valid @RequestBody Schedule schedule) {
         try {
-            if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+            if(getAcceptHeader().isPresent()) {
                 ZonedDateTime dateTime = ZonedDateTime.of(schedule.getAlertTime(), schedule.getZoneId());
                 if(dateTime.isBefore(ZonedDateTime.now())) {
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -87,7 +87,7 @@ public interface SchedulesApi {
         method = RequestMethod.GET)
     @CrossOrigin
     default ResponseEntity<List<Schedule>> scheduleProfiles() {
-        if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+        if(getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 return new ResponseEntity<>(getSchedules(), HttpStatus.OK);
             } else {
