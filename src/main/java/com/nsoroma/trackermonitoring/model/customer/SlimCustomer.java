@@ -1,8 +1,5 @@
 package com.nsoroma.trackermonitoring.model.customer;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-
 public class SlimCustomer {
 
     private String customerId;

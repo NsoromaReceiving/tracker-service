@@ -1,4 +1,4 @@
-package com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model; ;
+package com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
