@@ -51,7 +51,7 @@ public interface ScheduleApi {
         method = RequestMethod.DELETE)
     @CrossOrigin
     default ResponseEntity<Void> scheduleDelete(@ApiParam(value = "", required = true) @PathVariable("id") String id){
-        if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+        if(getAcceptHeader().isPresent()) {
             if(deleteSchedule(id)) {
                 return new ResponseEntity<>(HttpStatus.OK);
             } else  {
@@ -73,14 +73,14 @@ public interface ScheduleApi {
         method = RequestMethod.GET)
     @CrossOrigin
     default ResponseEntity<Schedule> scheduleId(@ApiParam(value = "", required = true) @PathVariable("id") String id) {
-        if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+        if(getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 return new ResponseEntity<>(getSchedule(id), HttpStatus.OK);
             }
         } else {
             log.warn("ObjectMapper or HttpServletRequest not configured in default ScheduleApi interface so no example is generated");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
     }
 
 
@@ -93,17 +93,17 @@ public interface ScheduleApi {
         method = RequestMethod.PUT)
     @CrossOrigin
     default ResponseEntity<Void> scheduleUpdate(@ApiParam(value = "", required = true) @PathVariable("id") String id, @ApiParam(value = "", required = true) @Valid @RequestBody Schedule scheduleUpdate) {
-        if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+        if(getAcceptHeader().isPresent()) {
             if(updateSchedule(id, scheduleUpdate)) {
 
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {
             log.warn("ObjectMapper or HttpServletRequest not configured in default ScheduleApi interface so no example is generated");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
     }
 
 }
