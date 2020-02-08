@@ -1,7 +1,10 @@
 package com.nsoroma.trackermonitoring.services;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,6 +17,9 @@ import java.util.LinkedHashSet;
 @Component
 public class BackgroundTask {
 
+    private Logger log = LoggerFactory.getLogger(BackgroundTask.class);
+
+
     @Autowired
     private Trackers trackers;
 
@@ -23,10 +29,20 @@ public class BackgroundTask {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     @Scheduled(fixedDelay = 100000)
-    public void getNewTrackerStates() throws IOException {
-        System.out.println("Getting Tracker State Updates at - " + formatter.format(LocalDateTime.now()));
+    public void getNewTrackerStates() throws IOException, UnirestException {
+        String dateFormat = formatter.format(LocalDateTime.now());
+        log.info("Getting Tracker State Updates at - {} ", dateFormat);
         LinkedHashSet<TrackerState> trackersList =  trackers.getAllTrackerStates();
-        System.out.println(trackersList);
+        String trackerListStr = String.valueOf(trackersList);
+        log.info(trackerListStr);
         trackerStateRepository.saveAll(trackersList);
+    }
+
+    public void setTrackers(Trackers trackers) {
+        this.trackers = trackers;
+    }
+
+    public void setTrackerStateRepository(TrackerStateRepository trackerStateRepository) {
+        this.trackerStateRepository = trackerStateRepository;
     }
 }
