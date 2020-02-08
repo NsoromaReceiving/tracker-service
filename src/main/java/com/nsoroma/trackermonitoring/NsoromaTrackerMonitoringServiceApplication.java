@@ -1,6 +1,7 @@
 package com.nsoroma.trackermonitoring;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -15,16 +16,20 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients
 @EnableScheduling
 public class NsoromaTrackerMonitoringServiceApplication implements ApplicationRunner {
+
+	private Logger log = LoggerFactory.getLogger(NsoromaTrackerMonitoringServiceApplication.class);
+
 	@Value("${spring.application.name}")
 	private String name;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(NsoromaTrackerMonitoringServiceApplication.class, args);
 	}
+
 	@Override
 	public void run(ApplicationArguments agr0) throws Exception {
-		System.out.println("Starting Application ...");
-		System.out.println("Application Name : " + name);
+		log.info("Starting Application ...");
+		log.info("Application Name : {}", name);
 	}
 
 }
