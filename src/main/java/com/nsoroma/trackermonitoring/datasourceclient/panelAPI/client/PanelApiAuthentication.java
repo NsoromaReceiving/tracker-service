@@ -1,8 +1,9 @@
 package com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.json.JSONObject;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -11,6 +12,9 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 @Service
 public class PanelApiAuthentication {
+
+    private Logger log = LoggerFactory.getLogger(PanelApiAuthentication.class);
+
     @Value("${nsoromagps.server2.panelAPI.host}")
     private String host;
     
@@ -20,29 +24,40 @@ public class PanelApiAuthentication {
 	@Value("${nsoromagps.server2.panelAPI.password}")
     private String password;
 
-    private String authenticationUrl;
-
     private String userHash;
 
-    public PanelApiAuthentication() { }
+    public String getDealerHash() throws UnirestException {
+        String authenticationUrl = constructAuthenticationUrl();
 
-    public String getDealerHash() {
-        authenticationUrl = host + "account/auth?login=" + username + "&password=" + password;
-        System.out.println(authenticationUrl);
-        try {
-            HttpResponse<JsonNode> serverResponse = Unirest.get(authenticationUrl)
-            .header("accept", "application/json").asJson();
-            if(serverResponse.getStatus() == 200) {
-                userHash = serverResponse.getBody().getObject().getString("hash");
-            } else {
-                System.out.println("User authentication failed");
-                System.out.println(serverResponse.getStatus());
-            }
-        } catch (UnirestException e) {
-            System.out.println("Unable to make request to server " + e);
+        HttpResponse<JsonNode> serverResponse = Unirest.get(authenticationUrl)
+        .header("accept", "application/json").asJson();
+        if(serverResponse.getStatus() == 200) {
+            userHash = serverResponse.getBody().getObject().getString("hash");
+        } else {
+            log.debug("User authentication failed");
+            String status =  String.valueOf(serverResponse.getStatus());
+            log.debug(status);
         }
         return userHash;
     }
 
+    public String constructAuthenticationUrl() {
+        return host + "account/auth?login=" + username + "&password=" + password;
+    }
 
- }
+    // for testing purposes
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+
+
+}

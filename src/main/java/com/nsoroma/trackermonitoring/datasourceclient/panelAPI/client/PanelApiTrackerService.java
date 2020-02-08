@@ -1,6 +1,5 @@
 package com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
 
@@ -10,7 +9,7 @@ import java.util.Optional;
 
 public interface PanelApiTrackerService {
 
-     List<Tracker> getTrackerList(String hash, Optional<String> userId) throws JsonMappingException, IOException;
+     List<Tracker> getTrackerList(String hash, Optional<String> userId) throws IOException, UnirestException;
 
      Tracker getTracker(String hash, String TrackerId) throws IOException, UnirestException;
 
