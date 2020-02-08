@@ -54,7 +54,7 @@ public interface TrackerApi {
         method = RequestMethod.GET)
     @CrossOrigin
     default ResponseEntity<TrackerState> trackerID(@ApiParam(value = "", required = true) @PathVariable("id") String id) {
-        if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+        if(getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 try {
                    return new ResponseEntity<>(getTracker(id),HttpStatus.OK);
@@ -82,7 +82,7 @@ public interface TrackerApi {
             method = RequestMethod.GET)
     @CrossOrigin
     default ResponseEntity<TrackerState> trackerByImei(@ApiParam(value = "", required = true) @PathVariable("imei") String imei) {
-        if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+        if(getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 try {
                     return new ResponseEntity<>(getTrackerByImei(imei),HttpStatus.OK);

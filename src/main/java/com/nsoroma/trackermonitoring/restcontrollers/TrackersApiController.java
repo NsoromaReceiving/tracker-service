@@ -1,6 +1,7 @@
 package com.nsoroma.trackermonitoring.restcontrollers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.services.Trackers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class TrackersApiController implements TrackersApi {
     }
 
     public LinkedHashSet<TrackerState> getTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> customerId,
-                                                                      Optional<String> type, Optional<String> order, Optional<String> status) throws IOException {
+                                                                      Optional<String> type, Optional<String> order, Optional<String> status) throws IOException, UnirestException {
         return trackers.getTrackers(startDate, endDate, customerId, type, order, status);
     }
 
