@@ -1,11 +1,11 @@
-package com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client;
+package com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Customer;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Customer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

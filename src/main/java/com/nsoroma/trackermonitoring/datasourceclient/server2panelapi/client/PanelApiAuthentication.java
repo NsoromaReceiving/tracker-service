@@ -1,4 +1,4 @@
-package com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client;
+package com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
