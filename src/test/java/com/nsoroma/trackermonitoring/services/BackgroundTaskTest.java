@@ -7,11 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class BackgroundTaskTest {
@@ -36,7 +34,7 @@ public class BackgroundTaskTest {
         TrackerState trackerState = new TrackerState();
         trackerState.setTrackerId("testTrackerId");
         LinkedHashSet<TrackerState> trackersList = new LinkedHashSet<>(Collections.singletonList(trackerState));
-        when(trackers.getAllTrackerStates()).thenReturn(trackersList);
+        when(trackers.getServerTwoTrackerStates()).thenReturn(trackersList);
         backgroundTask.getNewTrackerStates();
         verify(trackerStateRepository).saveAll(trackersList);
     }
