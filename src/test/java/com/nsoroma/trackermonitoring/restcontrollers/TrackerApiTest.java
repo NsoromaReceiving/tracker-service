@@ -17,7 +17,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -50,7 +49,7 @@ public class TrackerApiTest {
         httpServletRequest.removeHeader("Accept");
         httpServletRequest.addHeader("Accept", "application/json");
         TrackerState trackerState = new TrackerState();
-        when(trackers.getTracker(trackerId)).thenReturn(trackerState);
+        when(trackers.getServerTwoTracker(trackerId)).thenReturn(trackerState);
 
         ResponseEntity<TrackerState> responseEntity =  trackerApi.trackerID(trackerId);
 
@@ -84,7 +83,7 @@ public class TrackerApiTest {
         httpServletRequest.removeHeader("Accept");
         httpServletRequest.addHeader("Accept", "application/json");
 
-        when(trackers.getTracker(trackerId)).thenThrow(UnirestException.class);
+        when(trackers.getServerTwoTracker(trackerId)).thenThrow(UnirestException.class);
 
         ResponseEntity<TrackerState> responseEntity = trackerApi.trackerID(trackerId);
 

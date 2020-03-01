@@ -2,6 +2,7 @@ package com.nsoroma.trackermonitoring.restcontrollers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
 import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
 import com.nsoroma.trackermonitoring.services.Customers;
 import org.junit.Before;
@@ -43,7 +44,7 @@ public class CustomerApiTest {
     }
 
     @Test
-    public void getAllCustomers() throws IOException, UnirestException {
+    public void getAllCustomers() throws IOException, UnirestException, DataSourceClientResponseException {
         httpServletRequest.removeHeader("Accept");
         httpServletRequest.addHeader("Accept", "application/json");
         List<SlimCustomer> slimCustomers = new ArrayList<>();
@@ -64,7 +65,7 @@ public class CustomerApiTest {
     }
 
     @Test
-    public void getInternalServerErrorWhenServiceThrowsError() throws IOException, UnirestException {
+    public void getInternalServerErrorWhenServiceThrowsError() throws IOException, UnirestException, DataSourceClientResponseException {
         httpServletRequest.removeHeader("Accept");
         httpServletRequest.addHeader("Accept", "application/json");
         when(customers.getCustomers()).thenThrow(UnirestException.class);

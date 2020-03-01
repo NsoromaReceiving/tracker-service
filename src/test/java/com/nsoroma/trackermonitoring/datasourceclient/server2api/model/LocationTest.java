@@ -1,11 +1,9 @@
-package com.nsoroma.trackermonitoring.datasourceclient.api.model;
+package com.nsoroma.trackermonitoring.datasourceclient.server2api.model;
 
 import org.junit.Test;
 import org.meanbean.test.BeanTester;
 import org.meanbean.test.Configuration;
 import org.meanbean.test.ConfigurationBuilder;
-
-import static org.junit.Assert.*;
 
 public class LocationTest {
     @Test

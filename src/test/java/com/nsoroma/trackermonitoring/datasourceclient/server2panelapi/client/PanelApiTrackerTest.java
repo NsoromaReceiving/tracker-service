@@ -1,4 +1,4 @@
-package com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client;
+package com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client;
 
 
 import com.mashape.unirest.http.HttpResponse;
@@ -6,7 +6,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.GetRequest;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Tracker;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

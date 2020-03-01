@@ -1,17 +1,17 @@
 package com.nsoroma.trackermonitoring.services;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.nsoroma.trackermonitoring.datasourceclient.api.client.ApiTrackerServiceImpl;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.Gps;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.Gsm;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.Location;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.TrackerLastState;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiAuthentication;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiCustomerServiceImpl;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiTrackerServiceImpl;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Customer;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Source;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.client.ApiTrackerServiceImpl;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.Gps;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.Gsm;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.Location;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.TrackerLastState;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiAuthentication;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiCustomerServiceImpl;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiTrackerServiceImpl;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Customer;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Source;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Tracker;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
 import org.junit.Before;
@@ -89,7 +89,7 @@ public class TrackersTest {
         when(customerService.getCustomer(dealerHash, customerId.toString())).thenReturn(mockedCustomer);
 
         LinkedHashSet<TrackerState> trackerStates =  trackers.getTrackers(Optional.empty(),Optional.empty(), Optional.of(customerId.toString()),
-                Optional.empty(), Optional.empty(), Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
         verify(trackerStateRepository, never()).findAll();
         assertThat(trackerStates.size(), is(1));
@@ -111,7 +111,7 @@ public class TrackersTest {
         when(trackerStateRepository.findAll()).thenReturn(trackerStateList);
 
         LinkedHashSet<TrackerState> trackerStates =  trackers.getTrackers(Optional.empty(),Optional.empty(), customerId,
-                Optional.empty(), Optional.empty(), Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
         verify(trackerStateRepository).findAll();
         assertThat(trackerStates.size(), is(1));
@@ -144,7 +144,7 @@ public class TrackersTest {
         when(customerService.getCustomer(dealerHash, customerId.toString())).thenReturn(mockedCustomer);
 
         LinkedHashSet<TrackerState> trackerStates =  trackers.getTrackers(Optional.empty(),Optional.empty(), Optional.of(customerId.toString()),
-                Optional.empty(), Optional.empty(), Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
         verify(trackerStateRepository, never()).findAll();
         assertThat(trackerStates.size(), is(0));
@@ -163,7 +163,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId))));
     }
 
@@ -183,7 +183,7 @@ public class TrackersTest {
         //exception.expect(java.text.ParseException.class);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         assertFalse(false);
 
     }
@@ -201,7 +201,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         assertThat(trackerStates.size(), is(0));
     }
 
@@ -218,7 +218,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.of(filterEndDate), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId))));
     }
 
@@ -235,7 +235,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.of(filterEndDate), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         assertThat(trackerStates.size(), is(0));
     }
 
@@ -253,7 +253,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.of(filterEndDate), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         assertFalse(false);
 
     }
@@ -271,7 +271,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.of(filterTrackerModel),
-                Optional.empty(), trackerStateList, Optional.empty());
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId))));
     }
 
@@ -288,7 +288,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.of(filterTrackerModel),
-                Optional.empty(), trackerStateList, Optional.empty());
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         assertThat(trackerStates.size(), is(0));
     }
 
@@ -305,7 +305,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.of(filterTrackerStatus));
+                Optional.empty(), trackerStateList, Optional.of(filterTrackerStatus), Optional.empty(), Optional.empty());
         assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId))));
     }
 
@@ -322,7 +322,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.of(filterTrackerStatus));
+                Optional.empty(), trackerStateList, Optional.of(filterTrackerStatus), Optional.empty(), Optional.empty());
         assertThat(trackerStates.size(), is(0));
     }
 
@@ -347,7 +347,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState2);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.of(filterOrder), trackerStateList, Optional.empty());
+                Optional.of(filterOrder), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         List<TrackerState> trackerStateArray = new ArrayList<>(trackerStates);
 
         assertThat(trackerStates.size(), is(2));
@@ -375,7 +375,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState1);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.of(filterOrder), trackerStateList, Optional.empty());
+                Optional.of(filterOrder), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         List<TrackerState> trackerStateArray = new ArrayList<>(trackerStates);
 
         assertThat(trackerStates.size(), is(2));
@@ -403,7 +403,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState1);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.of(filterOrder), trackerStateList, Optional.empty());
+                Optional.of(filterOrder), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         List<TrackerState> trackerStateArray = new ArrayList<>(trackerStates);
 
         assertFalse(false);
@@ -430,7 +430,7 @@ public class TrackersTest {
         trackerStateList.add(trackerState1);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.of(filterOrder), trackerStateList, Optional.empty());
+                Optional.of(filterOrder), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         List<TrackerState> trackerStateArray = new ArrayList<>(trackerStates);
 
         assertFalse(false);
@@ -462,7 +462,7 @@ public class TrackersTest {
         when(customerService.getCustomers(dealerHash)).thenReturn(customerList);
         doReturn(trackerLastStates).when(trackers).getTrackerStateList(customerId.toString(), trackerList ,dealerHash);
         doReturn(trackerList).when(trackers).getTrackerList(Optional.empty(), dealerHash);
-        LinkedHashSet<TrackerState> trackerStates =  trackers.getAllTrackerStates();
+        LinkedHashSet<TrackerState> trackerStates =  trackers.getServerTwoTrackerStates();
 
         assertThat(trackerStates.size(), is(1));
         assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId.toString()))));
@@ -491,7 +491,7 @@ public class TrackersTest {
         when(customerService.getCustomers(dealerHash)).thenReturn(customerList);
         doReturn(trackerLastStates).when(trackers).getTrackerStateList(customerId.toString(), trackerList ,dealerHash);
         doReturn(trackerList).when(trackers).getTrackerList(Optional.empty(), dealerHash);
-        LinkedHashSet<TrackerState> trackerStates =  trackers.getAllTrackerStates();
+        LinkedHashSet<TrackerState> trackerStates =  trackers.getServerTwoTrackerStates();
 
         assertThat(trackerStates.size(), is(0));
     }
@@ -523,7 +523,7 @@ public class TrackersTest {
         when(customerService.getCustomer(dealerHash, customerId.toString())).thenReturn(mockedCustomer);
         when(apiTrackerService.getTrackerLastState(customerHash, trackerIdList)).thenReturn(trackerLastStateList);
 
-        TrackerState trackerStates =  trackers.getTracker(trackerId.toString());
+        TrackerState trackerStates =  trackers.getServerTwoTracker(trackerId.toString());
 
         assertThat(trackerStates, hasProperty("trackerId", is(trackerId.toString())));
     }

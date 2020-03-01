@@ -1,9 +1,10 @@
 package com.nsoroma.trackermonitoring.services;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiAuthentication;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiCustomerServiceImpl;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Customer;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiAuthentication;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiCustomerServiceImpl;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Customer;
+import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
 import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class CustomersImplTest {
     }
 
     @Test
-    public void trimDownCustomers() throws IOException, UnirestException {
+    public void trimDownCustomers() throws IOException, UnirestException, DataSourceClientResponseException {
         List<Customer> customersList = new ArrayList<>();
         customersList.add(customer);
         when(panelApiAuthentication.getDealerHash()).thenReturn("dealerHash");

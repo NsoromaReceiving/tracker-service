@@ -1,4 +1,4 @@
-package com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client;
+package com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;

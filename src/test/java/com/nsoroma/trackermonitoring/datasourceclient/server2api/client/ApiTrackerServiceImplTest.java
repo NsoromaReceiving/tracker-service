@@ -1,14 +1,11 @@
-package com.nsoroma.trackermonitoring.datasourceclient.api.client;
+package com.nsoroma.trackermonitoring.datasourceclient.server2api.client;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.GetRequest;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.Gps;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.Gsm;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.Location;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.TrackerLastState;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.TrackerLastState;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +15,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
