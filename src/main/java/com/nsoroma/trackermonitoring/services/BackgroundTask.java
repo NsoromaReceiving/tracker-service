@@ -1,6 +1,7 @@
 package com.nsoroma.trackermonitoring.services;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
 import org.slf4j.Logger;
@@ -32,10 +33,17 @@ public class BackgroundTask {
     public void getNewTrackerStates() throws IOException, UnirestException {
         String dateFormat = formatter.format(LocalDateTime.now());
         log.info("Getting Tracker State Updates at - {} ", dateFormat);
-        LinkedHashSet<TrackerState> trackersList =  trackers.getAllTrackerStates();
+        LinkedHashSet<TrackerState> trackersList =  trackers.getServerTwoTrackerStates();
         String trackerListStr = String.valueOf(trackersList);
         log.info(trackerListStr);
         trackerStateRepository.saveAll(trackersList);
+    }
+
+    @Scheduled(fixedDelay = 100000)
+    public void getServer1Trackers() throws IOException, UnirestException, DataSourceClientResponseException {
+        LinkedHashSet<TrackerState> trackerStateList = trackers.getServerOneTrackerStates();
+        log.info(String.valueOf(trackerStateList));
+        trackerStateRepository.saveAll(trackerStateList);
     }
 
     public void setTrackers(Trackers trackers) {
