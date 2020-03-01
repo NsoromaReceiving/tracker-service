@@ -1,6 +1,7 @@
 package com.nsoroma.trackermonitoring.restcontrollers;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
 import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
@@ -35,7 +36,7 @@ public interface CustomerApi {
         return getRequest().map(r -> r.getHeader("Accept"));
     }
 
-    public List<SlimCustomer> getCustomers() throws IOException, UnirestException;
+    public List<SlimCustomer> getCustomers() throws IOException, UnirestException, DataSourceClientResponseException;
 
     @ApiOperation(value = "get a list of customers", nickname = "getCustomers", notes = "gets a list of all customers", tags={ "developers", })
     @ApiResponses(value = {
