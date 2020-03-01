@@ -14,24 +14,35 @@ pipelines:
              - mvn org.jacoco:jacoco-maven-plugin:prepare-agent install
              - mvn sonar:sonar -Dsonar.test=src/test -Dsonar.projectKey=n-t-m-s -Dsonar.host.url=http://165.22.120.243:9000 -Dsonar.login=6fe927cb875c24260c41660607b8209bc40e1c94
 
-    - step: &build-deploy-docker
+  branches:
+    master:
+      - step: &build-deploy-docker-stable-version
+          name: build and deploy to docker-hub
+          services:
+            - docker
+          script:
+            - export IMAGE=hawkmanlabs/nsoroma-tracker-monitoring-service
+            - export IMAGE_NAME=hawkmanlabs/nsoroma-tracker-monitoring-service:$BITBUCKET_COMMIT
+            - export IMAGE_NAME2=hawkmanlabs/nsoroma-tracker-monitoring-service:stable
+
+            - docker build -t $IMAGE_NAME -t $IMAGE_NAME2 .
+            - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+            - docker push $IMAGE
+    
+    develop:
+      - step: &build-deploy-docker-development
         name: build and deploy to docker-hub
         services:
           - docker
-        script: # Modify the commands below to build your repository.
-          # Set $DOCKER_HUB_USERNAME and $DOCKER_HUB_PASSWORD as environment variables in repository settings
+        script:
           - export IMAGE=hawkmanlabs/nsoroma-tracker-monitoring-service
-          - export IMAGE_NAME=hawkmanlabs/nsoroma-tracker-monitoring-service:$BITBUCKET_COMMIT
-          - export IMAGE_NAME2=hawkmanlabs/nsoroma-tracker-monitoring-service:stable
+          - export IMAGE_NAME=hawkmanlabs/nsoroma-tracker-monitoring-service:develop
 
-          # build the Docker image (this will use the Dockerfile in the root of the repo)
-          - docker build -t $IMAGE_NAME -t $IMAGE_NAME2 .
-          # authenticate with the Docker Hub registry
+          - docker build -t $IMAGE_NAME .
           - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
-          # push the new Docker image to the Docker registry
           - docker push $IMAGE
 
-##Frank wants a demo
+
 definitions:
   services:
     docker:
