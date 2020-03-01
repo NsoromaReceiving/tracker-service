@@ -8,20 +8,27 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.nsoroma.trackermonitoring.datasourceclient.api.client.ApiTrackerService;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.TrackerLastState;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiAuthentication;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiCustomerService;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiTrackerService;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Customer;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.client.LocationManager;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.client.UnitManager;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.LatestLocation;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.Unit;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.client.ApiTrackerService;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.TrackerLastState;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiAuthentication;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiCustomerService;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiTrackerService;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Customer;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Tracker;
+import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 
 import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
+import org.apache.poi.util.SystemOutLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.tools.jconsole.JConsole;
 
 
 @Service
@@ -48,13 +55,19 @@ public class Trackers {
     @Autowired
     private TrackerStateRepository trackerStateRepository;
 
+    @Autowired
+    private LocationManager locationManager;
+
+    @Autowired
+    private UnitManager unitManager;
+
     //serves api/trackers/?param1=&param2=...
     public LinkedHashSet<TrackerState> getTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> customerId,
-                                                                     Optional<String> type, Optional<String> order, Optional<String> status) throws IOException, UnirestException {
+                                                                     Optional<String> type, Optional<String> order, Optional<String> status, Optional<String> server) throws IOException, UnirestException {
         log.info("getTracker Called");
         Set<TrackerState> trackerStates = new HashSet<>(Collections.emptySet());
 
-        if(customerId.isPresent()){
+        /*if(customerId.isPresent()){
             log.info("Customer Id present");
             String hash = dealerAuthClient.getDealerHash();
             List<Tracker> trackerList = getTrackerList(customerId, hash); //gets list of all trackers on server 2 which may belong to a user
@@ -74,12 +87,15 @@ public class Trackers {
 
         }
 
-        return new LinkedHashSet<>(filterTrackers(startDate, endDate, type,order, trackerStates, status));
+        return new LinkedHashSet<>(filterTrackers(startDate, endDate, type,order, trackerStates, status, server));*/
+
+        trackerStates.addAll(trackerStateRepository.findAll());
+        return new LinkedHashSet<>(filterTrackers(startDate, endDate, type,order, trackerStates, status, server, customerId));
     }
 
 
     //get all trackers' states
-    public LinkedHashSet<TrackerState> getAllTrackerStates() throws IOException, UnirestException {
+    public LinkedHashSet<TrackerState> getServerTwoTrackerStates() throws IOException, UnirestException {
         log.info("getAllTrackerStates Called");
         String hash = dealerAuthClient.getDealerHash();
         List<Tracker> trackerList = getTrackerList(Optional.empty(), hash); //gets list of all trackers on server 2 which may belong to a user
@@ -100,8 +116,29 @@ public class Trackers {
         return new LinkedHashSet<>(trackerStates);
     }
 
-    //get tracker by Id
-    public TrackerState getTracker(String id) throws IOException, UnirestException {
+
+    //get server1 Tracker state
+    public LinkedHashSet<TrackerState> getServerOneTrackerStates() throws DataSourceClientResponseException, UnirestException, IOException {
+        Set<TrackerState> trackerStates = new HashSet<>(Collections.emptySet());
+        List<Unit> unitList = unitManager.getUnits();
+        List<LatestLocation> latestLocationList = locationManager.getLatestLocation();
+        System.out.println(unitList.size());
+        System.out.println(latestLocationList.size());
+        int len = 0;
+        for(Unit unit: unitList) {
+            if(!unit.getImei().equals("")) {
+               LatestLocation latestLocation = latestLocationList.parallelStream().filter(latestLocation1 -> unit.getImei().equals(latestLocation1.getImei())).findFirst().orElse(null);
+                if (latestLocation != null) {
+                    trackerStates.add(setServer1TrackerStateData(latestLocation, unit));
+                }
+            }
+
+        }
+        return new LinkedHashSet<>(trackerStates);
+    }
+
+    //get tracker by Id in server two
+    public TrackerState getServerTwoTracker(String id) throws IOException, UnirestException {
         log.info("getTracker called");
         TrackerState trackerState = new TrackerState();
         String hash = dealerAuthClient.getDealerHash();
@@ -112,6 +149,11 @@ public class Trackers {
         TrackerLastState trackerLastState = apiTrackerService.getTrackerLastState(customerHash,trackerIdList).get(0);
 
         return setTrackerStateData(tracker,trackerLastState,trackerState,hash);
+    }
+
+    //get tracker by Id in server one
+    public Optional<TrackerState> getServerOneTracker(String id) {
+        return trackerStateRepository.findById(id);
     }
 
     //get tracker by IMEI
@@ -137,7 +179,16 @@ public class Trackers {
 
     //filters list  of trackerStates
     protected LinkedHashSet<TrackerState> filterTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> type,
-                                                         Optional<String> order, Set<TrackerState> trackerStates, Optional<String> status) {
+                                                         Optional<String> order, Set<TrackerState> trackerStates, Optional<String> status, Optional<String> server, Optional<String> customerId) {
+        if (customerId.isPresent()) {
+            log.info("CustomerId : {}", customerId.get());
+            trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getCustomerId().equals(customerId.get())).collect(Collectors.toSet());
+        }
+
+        if (server.isPresent()) {
+            log.info("Server : {}", server.get());
+            trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getServer().equals(server.get())).collect(Collectors.toSet());
+        }
 
         //new code start date
         String datePattern = "yyyy-MM-dd HH:mm:ss";
@@ -246,6 +297,7 @@ public class Trackers {
 
     //Sets TrackerState Object values
     private TrackerState setTrackerStateData(Tracker tracker, TrackerLastState trackerLastState, TrackerState trackerState, String hash) throws IOException, UnirestException {
+        trackerState.setServer("2");
         trackerState.setLabel(tracker.getLabel());
         trackerState.setCustomerId(tracker.getUserId().toString());
         trackerState.setTrackerId(tracker.getId().toString());
@@ -273,6 +325,7 @@ public class Trackers {
     private TrackerState trackerStateData(TrackerState trackerState, List<Tracker> customerTrackers, TrackerLastState trackerLastState, Customer customer) {
         List<Tracker> trackerList1 = customerTrackers.parallelStream().filter(tracker1 -> tracker1.getId().toString().equals(trackerLastState.getTrackerId())).collect(Collectors.toList());
         if (!trackerList1.isEmpty()) {
+            trackerState.setServer("2");
             trackerState.setLabel(trackerList1.get(0).getLabel());
             trackerState.setCustomerId(trackerList1.get(0).getUserId().toString());
             trackerState.setTrackerId(trackerList1.get(0).getId().toString());
@@ -315,6 +368,29 @@ public class Trackers {
         if (trackerLastState.getBatteryLevel() != null) {
             trackerState.setLastBatteryLevel(trackerLastState.getBatteryLevel().toString());
         }
+
+    }
+
+
+    private TrackerState setServer1TrackerStateData(LatestLocation latestLocation, Unit unit) throws IOException, UnirestException, DataSourceClientResponseException {
+           TrackerState trackerState = new TrackerState();
+           trackerState.setServer("1");
+           trackerState.setTrackerId(latestLocation.getImei());
+           trackerState.setImei(latestLocation.getImei());
+           trackerState.setLabel(latestLocation.getName());
+           trackerState.setLastGpsUpdate(latestLocation.getDateTime().replace("T", " "));
+           trackerState.setLastGpsLongitude(latestLocation.getLongitude());
+           trackerState.setLastGpsLatitude(latestLocation.getLatitude());
+           trackerState.setCustomerName(unit.getGroupName());
+           trackerState.setCustomerId(unit.getGroupName());
+           trackerState.setModel("");
+           if (unit.getStatus().equals("Active")) {
+               trackerState.setConnectionStatus("active");
+           } else {
+               trackerState.setConnectionStatus("offline");
+           }
+
+           return trackerState;
 
     }
 
