@@ -1,7 +1,7 @@
-package com.nsoroma.trackermonitoring.datasourceclient.api.client;
+package com.nsoroma.trackermonitoring.datasourceclient.server2api.client;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.TrackerLastState;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.TrackerLastState;
 
 import java.io.IOException;
 import java.util.List;

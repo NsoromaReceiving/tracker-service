@@ -1,5 +1,5 @@
 
-package com.nsoroma.trackermonitoring.datasourceclient.api.model;
+package com.nsoroma.trackermonitoring.datasourceclient.server2api.model;
 
 import java.util.List;
 

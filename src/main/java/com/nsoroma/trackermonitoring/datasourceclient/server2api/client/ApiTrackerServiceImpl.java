@@ -1,4 +1,4 @@
-package com.nsoroma.trackermonitoring.datasourceclient.api.client;
+package com.nsoroma.trackermonitoring.datasourceclient.server2api.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.TrackerLastState;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.TrackerLastState;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
