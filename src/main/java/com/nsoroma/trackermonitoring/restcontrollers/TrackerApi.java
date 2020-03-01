@@ -40,7 +40,9 @@ public interface TrackerApi {
         return getRequest().map(r -> r.getHeader("Accept"));
     }
 
-    TrackerState getTracker(String id) throws IOException, UnirestException;
+    Optional<TrackerState> getServerOneTracker(String id);
+
+    TrackerState getServerTwoTracker(String id) throws IOException, UnirestException;
 
     TrackerState getTrackerByImei(String Imei) throws IOException, UnirestException;
 
@@ -57,7 +59,21 @@ public interface TrackerApi {
         if(getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 try {
-                   return new ResponseEntity<>(getTracker(id),HttpStatus.OK);
+                    if(id.length() == 6) {
+                        TrackerState trackerState = getServerTwoTracker(id);
+                        if(trackerState.getTrackerId() != null) {
+                            return new ResponseEntity<>(trackerState,HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
+                    } else {
+                        Optional<TrackerState> trackerState = getServerOneTracker(id);
+                        if(trackerState.isPresent()) {
+                            return new ResponseEntity<>(trackerState.get(),HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
+                    }
                 } catch (IOException | UnirestException e) {
                     log.error("Couldn't serialize response for content type application/json", e);
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
