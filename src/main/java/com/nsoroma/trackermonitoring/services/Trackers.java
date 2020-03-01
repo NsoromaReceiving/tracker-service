@@ -23,12 +23,10 @@ import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseExceptio
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 
 import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
-import org.apache.poi.util.SystemOutLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.tools.jconsole.JConsole;
 
 
 @Service
