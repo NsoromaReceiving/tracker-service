@@ -5,5 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 
 public interface TrackerStateRepository extends MongoRepository<TrackerState, String> {
-
+    TrackerState findByImei(String imei);
 }
