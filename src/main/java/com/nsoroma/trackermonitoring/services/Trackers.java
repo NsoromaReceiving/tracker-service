@@ -120,9 +120,6 @@ public class Trackers {
         Set<TrackerState> trackerStates = new HashSet<>(Collections.emptySet());
         List<Unit> unitList = unitManager.getUnits();
         List<LatestLocation> latestLocationList = locationManager.getLatestLocation();
-        System.out.println(unitList.size());
-        System.out.println(latestLocationList.size());
-        int len = 0;
         for(Unit unit: unitList) {
             if(!unit.getImei().equals("")) {
                LatestLocation latestLocation = latestLocationList.parallelStream().filter(latestLocation1 -> unit.getImei().equals(latestLocation1.getImei())).findFirst().orElse(null);
@@ -130,7 +127,6 @@ public class Trackers {
                     trackerStates.add(setServer1TrackerStateData(latestLocation, unit));
                 }
             }
-
         }
         return new LinkedHashSet<>(trackerStates);
     }
@@ -392,7 +388,6 @@ public class Trackers {
 
     }
 
-
     public void setDealerAuthClient(PanelApiAuthentication dealerAuthClient) {
         this.dealerAuthClient = dealerAuthClient;
     }
@@ -413,5 +408,12 @@ public class Trackers {
         this.trackerStateRepository = trackerStateRepository;
     }
 
+    public void setLocationManager(LocationManager locationManager) {
+        this.locationManager = locationManager;
+    }
+
+    public void setUnitManager(UnitManager unitManager) {
+        this.unitManager = unitManager;
+    }
 
 }
