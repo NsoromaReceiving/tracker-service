@@ -38,7 +38,6 @@ public class UnitManagerImpl implements UnitManager {
         if (response.getStatus() == 200) {
             unitListXml = response.getBody();
             XmlMapper xmlMapper = new XmlMapper();
-            System.out.println(unitListXml);
             WebServiceResultWrapper webServiceResultWrapper = xmlMapper.readValue(unitListXml, WebServiceResultWrapper.class);
             if (webServiceResultWrapper != null && webServiceResultWrapper.getWebServiceContent().getData().getUnits() != null) {
                 units = webServiceResultWrapper.getWebServiceContent().getData().getUnits();
@@ -47,5 +46,13 @@ public class UnitManagerImpl implements UnitManager {
             throw new DataSourceClientResponseException(Class.class.getName(), authUrl, response.getStatus());
         }
         return units;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setApiAuthentication(ApiAuthentication apiAuthentication) {
+        this.apiAuthentication = apiAuthentication;
     }
 }

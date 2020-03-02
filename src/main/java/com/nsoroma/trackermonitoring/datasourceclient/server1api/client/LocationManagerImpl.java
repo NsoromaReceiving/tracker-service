@@ -30,22 +30,31 @@ public class LocationManagerImpl implements LocationManager {
 
         UserSession userSession = apiAuthentication.getUserSession();
 
-        String authUrl = host + "management/LocationManager.asmx/GetLatestLocationListForUser2?UserIdGuid="+ userSession.getUserIdGuid() +"&SessionId="+ userSession.getSessionId() +"&LastDateReceivedUtc=2000-02-08T06:00:00";
+        String latestLocation = host + "management/LocationManager.asmx/GetLatestLocationListForUser2?UserIdGuid="+ userSession.getUserIdGuid() +"&SessionId="+ userSession.getSessionId() +"&LastDateReceivedUtc=2000-02-08T06:00:00";
         String latestLocationXml = null;
         List<LatestLocation> latestLocations = Collections.emptyList();
 
-        HttpResponse<String> response = Unirest.get(authUrl).asString();
+        HttpResponse<String> response = Unirest.get(latestLocation).asString();
         if (response.getStatus() == 200) {
             latestLocationXml = response.getBody();
             XmlMapper xmlMapper = new XmlMapper();
-            System.out.println(latestLocationXml);
             LatestLocationListWrapper latestLocationListWrapper = xmlMapper.readValue(latestLocationXml, LatestLocationListWrapper.class);
             if (latestLocationListWrapper != null && latestLocationListWrapper.getLatestLocations() != null) {
                 latestLocations = latestLocationListWrapper.getLatestLocations();
             }
         } else {
-            throw new DataSourceClientResponseException(Class.class.getName(), authUrl, response.getStatus());
+            throw new DataSourceClientResponseException(Class.class.getName(), latestLocation, response.getStatus());
         }
         return latestLocations;
     }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setApiAuthentication(ApiAuthentication apiAuthentication) {
+        this.apiAuthentication = apiAuthentication;
+    }
+
+
 }
