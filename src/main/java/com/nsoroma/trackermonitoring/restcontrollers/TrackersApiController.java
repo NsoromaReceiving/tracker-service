@@ -44,11 +44,5 @@ public class TrackersApiController implements TrackersApi {
         return trackers.getTrackers(startDate, endDate, customerId, type, order, status, server);
     }
 
-    /**testserver1
-     * @return**/
-    public LinkedHashSet<TrackerState> getServer1LatestLocation() throws IOException, UnirestException, DataSourceClientResponseException {
-        return trackers.getServerOneTrackerStates();
-    }
-
 
 }

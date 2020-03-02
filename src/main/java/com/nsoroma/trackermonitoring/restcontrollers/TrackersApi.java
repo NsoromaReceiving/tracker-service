@@ -46,8 +46,6 @@ public interface TrackersApi {
     public LinkedHashSet<TrackerState> getTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> customerId,
                                                    Optional<String> type, Optional<String> order, Optional<String> status, Optional<String> server) throws IOException, UnirestException;
 
-    public LinkedHashSet<TrackerState> getServer1LatestLocation() throws IOException, UnirestException, DataSourceClientResponseException;
-
     @ApiOperation(value = "gets all trackers that meets the criteria set by the list of parameters.", nickname = "trackers", notes = "This provides a list of all trackers and thier data in a descending order of last update time.", response = TrackerState.class, responseContainer = "List", tags={ "developers", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success!", response = TrackerState.class, responseContainer = "List"),
@@ -68,36 +66,6 @@ public interface TrackersApi {
                 try {
 
                     LinkedHashSet<TrackerState> trackerStates = getTrackers(startDate,endDate,customerId,type,order, status, server);
-                    return new ResponseEntity<>(trackerStates, HttpStatus.OK);
-
-                } catch (Exception e) {
-                    log.error("Unexpected exception", e);
-                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-                }
-
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-            }
-        } else{
-            log.warn("ObjectMapper or HttpServletRequest not configured in default TrackersApi interface so no example is generated");
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-        }
-    }
-
-    @ApiOperation(value = "gets all trackerStates in server1", nickname = "trackers", notes = " time.", response = LatestLocation.class, responseContainer = "List", tags={ "developers", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "success!", response = LatestLocation.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "bad input parameter") })
-    @RequestMapping(value = "api/server1",
-            produces = { "application/json" },
-            method = RequestMethod.GET)
-    @CrossOrigin
-    default ResponseEntity<LinkedHashSet<TrackerState>> trackers() {
-        if(getAcceptHeader().isPresent()) {
-            if (getAcceptHeader().get().contains("application/json")) {
-                try {
-
-                    LinkedHashSet<TrackerState> trackerStates = getServer1LatestLocation();
                     return new ResponseEntity<>(trackerStates, HttpStatus.OK);
 
                 } catch (Exception e) {
