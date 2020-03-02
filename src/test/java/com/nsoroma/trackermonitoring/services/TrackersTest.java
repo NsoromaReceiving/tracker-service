@@ -1,6 +1,12 @@
 package com.nsoroma.trackermonitoring.services;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.client.LocationManager;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.client.LocationManagerImpl;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.client.UnitManager;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.client.UnitManagerImpl;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.LatestLocation;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.Unit;
 import com.nsoroma.trackermonitoring.datasourceclient.server2api.client.ApiTrackerServiceImpl;
 import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.Gps;
 import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.Gsm;
@@ -12,6 +18,7 @@ import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.Pan
 import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Customer;
 import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Source;
 import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Tracker;
+import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
 import org.junit.Before;
@@ -37,6 +44,8 @@ public class TrackersTest {
     private PanelApiAuthentication dealerAuthClient;
     private PanelApiCustomerServiceImpl customerService;
     private PanelApiTrackerServiceImpl panelApiTrackerService;
+    private LocationManagerImpl locationManager;
+    private UnitManagerImpl unitManager;
     private ApiTrackerServiceImpl apiTrackerService;
     private TrackerStateRepository trackerStateRepository;
 
@@ -49,6 +58,8 @@ public class TrackersTest {
         dealerAuthClient = mock(PanelApiAuthentication.class);
         customerService = mock(PanelApiCustomerServiceImpl.class);
         panelApiTrackerService = mock(PanelApiTrackerServiceImpl.class);
+        locationManager = mock(LocationManagerImpl.class);
+        unitManager = mock(UnitManagerImpl.class);
         apiTrackerService = mock(ApiTrackerServiceImpl.class);
         trackerStateRepository = mock(TrackerStateRepository.class);
         trackers = spy(new Trackers());
@@ -57,6 +68,8 @@ public class TrackersTest {
         trackers.setPanelTrackersService(panelApiTrackerService);
         trackers.setApiTrackerService(apiTrackerService);
         trackers.setTrackerStateRepository(trackerStateRepository);
+        trackers.setLocationManager(locationManager);
+        trackers.setUnitManager(unitManager);
 
 
     }
@@ -65,33 +78,19 @@ public class TrackersTest {
     public void getTrackersWithSpecifiedCustomerID() throws IOException, UnirestException {
         Integer customerId = 657483;
         Integer trackerId = 12345;
-        String dealerHash = "dealerHash";
-        String customerHash = "customerHash";
 
-        Tracker mockedTracker = mockedTracker(customerId, trackerId);
-        List<Tracker> trackerList = new ArrayList<>();
-        trackerList.add(mockedTracker);
+        TrackerState trackerState = new TrackerState();
+        trackerState.setTrackerId(trackerId.toString());
+        trackerState.setCustomerId(customerId.toString());
 
-        Customer mockedCustomer = mockedCustomer(customerId);
+        List<TrackerState> trackerStateList = new ArrayList<>();
+        trackerStateList.add(trackerState);
 
-        TrackerLastState trackerLastState = mockTrackerLastState(trackerId);
-        List<TrackerLastState> trackerLastStates = new ArrayList<>();
-        trackerLastStates.add(trackerLastState);
-
-        List<String> trackerIds = new ArrayList<>();
-        trackerIds.add(trackerId.toString());
-
-
-        when(dealerAuthClient.getDealerHash()).thenReturn(dealerHash);
-        when(customerService.getCustomerHash(dealerHash,customerId.toString())).thenReturn(customerHash);
-        when(apiTrackerService.getTrackerLastState(customerHash, trackerIds)).thenReturn(trackerLastStates);
-        when(panelApiTrackerService.getTrackerList(dealerHash, Optional.of(customerId.toString()))).thenReturn(trackerList);
-        when(customerService.getCustomer(dealerHash, customerId.toString())).thenReturn(mockedCustomer);
+        when(trackerStateRepository.findAll()).thenReturn(trackerStateList);
 
         LinkedHashSet<TrackerState> trackerStates =  trackers.getTrackers(Optional.empty(),Optional.empty(), Optional.of(customerId.toString()),
                 Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
-        verify(trackerStateRepository, never()).findAll();
         assertThat(trackerStates.size(), is(1));
         assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId.toString()))));
     }
@@ -122,33 +121,80 @@ public class TrackersTest {
     public void returnEmptyTrackerListWhenNoTrackerAreAvailable() throws IOException, UnirestException {
         Integer customerId = 657483;
         Integer trackerId = 12345;
-        String dealerHash = "dealerHash";
-        String customerHash = "customerHash";
 
-        Tracker mockedTracker = mockedTracker(customerId, trackerId);
-        List<Tracker> trackerList = new ArrayList<>();
-        trackerList.add(mockedTracker);
+        TrackerState trackerState = new TrackerState();
+        trackerState.setTrackerId(trackerId.toString());
+        trackerState.setCustomerId("unknownCustomerId");
 
-        Customer mockedCustomer = mockedCustomer(customerId);
+        List<TrackerState> trackerStateList = new ArrayList<>();
+        trackerStateList.add(trackerState);
 
-        List<TrackerLastState> trackerLastStates = new ArrayList<>();
+        when(trackerStateRepository.findAll()).thenReturn(trackerStateList);
 
-        List<String> trackerIds = new ArrayList<>();
-        trackerIds.add(trackerId.toString());
-
-
-        when(dealerAuthClient.getDealerHash()).thenReturn(dealerHash);
-        when(customerService.getCustomerHash(dealerHash,customerId.toString())).thenReturn(customerHash);
-        when(apiTrackerService.getTrackerLastState(customerHash, trackerIds)).thenReturn(trackerLastStates);
-        when(panelApiTrackerService.getTrackerList(dealerHash, Optional.of(customerId.toString()))).thenReturn(trackerList);
-        when(customerService.getCustomer(dealerHash, customerId.toString())).thenReturn(mockedCustomer);
 
         LinkedHashSet<TrackerState> trackerStates =  trackers.getTrackers(Optional.empty(),Optional.empty(), Optional.of(customerId.toString()),
                 Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
-        verify(trackerStateRepository, never()).findAll();
         assertThat(trackerStates.size(), is(0));
     }
+
+    @Test
+    public void trackerStatesFromServerOne() throws IOException, UnirestException, DataSourceClientResponseException {
+        Unit serverOneUnit1 = mockedServer1Unit();
+
+        LatestLocation serverOneLatestLocation = getServer1LatestLocation();
+
+        List<Unit> unitList = new ArrayList<>();
+        unitList.add(serverOneUnit1);
+        List<LatestLocation> latestLocationList = new ArrayList<>();
+        latestLocationList.add(serverOneLatestLocation);
+
+        when(unitManager.getUnits()).thenReturn(unitList);
+        when(locationManager.getLatestLocation()).thenReturn(latestLocationList);
+
+        LinkedHashSet<TrackerState> trackerStateLinkedHashSet = trackers.getServerOneTrackerStates();
+        assertThat(trackerStateLinkedHashSet.size(), is(1));
+        assertThat(trackerStateLinkedHashSet, contains(hasProperty("trackerId", is(serverOneUnit1.getImei()))));
+    }
+
+    @Test
+    public void trackerStatesFromServerOneWithInactiveStatus() throws IOException, UnirestException, DataSourceClientResponseException {
+        Unit serverOneUnit1 = mockedServer1Unit();
+        serverOneUnit1.setStatus("Inactive");
+
+        LatestLocation serverOneLatestLocation = getServer1LatestLocation();
+
+        List<Unit> unitList = new ArrayList<>();
+        unitList.add(serverOneUnit1);
+        List<LatestLocation> latestLocationList = new ArrayList<>();
+        latestLocationList.add(serverOneLatestLocation);
+
+        when(unitManager.getUnits()).thenReturn(unitList);
+        when(locationManager.getLatestLocation()).thenReturn(latestLocationList);
+
+        LinkedHashSet<TrackerState> trackerStateLinkedHashSet = trackers.getServerOneTrackerStates();
+        assertThat(trackerStateLinkedHashSet.size(), is(1));
+        assertThat(trackerStateLinkedHashSet, contains(hasProperty("trackerId", is(serverOneUnit1.getImei()))));
+        assertThat(trackerStateLinkedHashSet, contains(hasProperty("connectionStatus", is("offline"))));
+    }
+
+    @Test
+    public void getServerOneTrackerFromDb() {
+        Integer customerId = 657483;
+        Integer trackerId = 12345;
+
+        TrackerState trackerState = new TrackerState();
+        trackerState.setTrackerId(trackerId.toString());
+        trackerState.setCustomerId(customerId.toString());
+        trackerState.setCustomerName("Unassigned");
+
+        when(trackerStateRepository.findById(trackerId.toString())).thenReturn(Optional.of(trackerState));
+        Optional<TrackerState> trackerState1 = trackers.getServerOneTracker(trackerId.toString());
+
+        assertThat(trackerState1.get(), hasProperty("trackerId", is(trackerId.toString())));
+    }
+
+
 
     @Test
     public void filterTrackerStatesByStartDateAdded() {
@@ -256,6 +302,40 @@ public class TrackersTest {
                 Optional.empty(), trackerStateList, Optional.empty(), Optional.empty(), Optional.empty());
         assertFalse(false);
 
+    }
+
+
+    @Test
+    public void filterTrackerStatesByServerAdded() {
+        String trackerId = "12345";
+        String server = "server1";
+
+        TrackerState trackerState = new TrackerState();
+        trackerState.setTrackerId(trackerId);
+        trackerState.setServer(server);
+        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
+        trackerStateList.add(trackerState);
+
+        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.of(server),Optional.empty());
+        assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId))));
+    }
+
+    @Test
+    public void filterTrackerStatesByServerNotAdded() {
+        String trackerId = "12345";
+        String server = "server1";
+        String filterServer = "server2";
+
+        TrackerState trackerState = new TrackerState();
+        trackerState.setTrackerId(trackerId);
+        trackerState.setServer(server);
+        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
+        trackerStateList.add(trackerState);
+
+        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
+                Optional.empty(), trackerStateList, Optional.empty(), Optional.of(filterServer),Optional.empty());
+        assertThat(trackerStates.size(), is(0));
     }
 
     @Test
@@ -444,6 +524,8 @@ public class TrackersTest {
         Integer customerId = 657483;
         Integer trackerId = 12345;
         String dealerHash = "dealerHash";
+        List<String> trackerIds = new ArrayList<>();
+        trackerIds.add(trackerId.toString());
 
         Tracker mockedTracker = mockedTracker(customerId, trackerId);
         List<Tracker> trackerList = new ArrayList<>();
@@ -460,8 +542,11 @@ public class TrackersTest {
 
         when(dealerAuthClient.getDealerHash()).thenReturn(dealerHash);
         when(customerService.getCustomers(dealerHash)).thenReturn(customerList);
-        doReturn(trackerLastStates).when(trackers).getTrackerStateList(customerId.toString(), trackerList ,dealerHash);
-        doReturn(trackerList).when(trackers).getTrackerList(Optional.empty(), dealerHash);
+        //doReturn(trackerList).when(trackers).getTrackerList(Optional.empty(), dealerHash);
+        when(panelApiTrackerService.getTrackerList(dealerHash, Optional.empty())).thenReturn(trackerList);
+        when(customerService.getCustomerHash(dealerHash,customerId.toString())).thenReturn("customerHash");
+        when(apiTrackerService.getTrackerLastState("customerHash", trackerIds)).thenReturn(trackerLastStates);
+
         LinkedHashSet<TrackerState> trackerStates =  trackers.getServerTwoTrackerStates();
 
         assertThat(trackerStates.size(), is(1));
@@ -615,5 +700,24 @@ public class TrackersTest {
         trackerLastState.setBatteryLevel(60);
 
         return trackerLastState;
+    }
+
+    private Unit mockedServer1Unit() {
+        Unit serverOneUnit = new Unit();
+        serverOneUnit.setName("unit1");
+        serverOneUnit.setImei("109193090130");
+        serverOneUnit.setStatus("Active");
+        serverOneUnit.setGroupName("Unassigned");
+        return serverOneUnit;
+    }
+
+    private LatestLocation getServer1LatestLocation() {
+        LatestLocation serverOneLatestLocation = new LatestLocation();
+        serverOneLatestLocation.setImei("109193090130");
+        serverOneLatestLocation.setName("unit1");
+        serverOneLatestLocation.setDateTime("2020-01-29T11:53:56");
+        serverOneLatestLocation.setLatitude("-1.24343");
+        serverOneLatestLocation.setLongitude("0.5321");
+        return serverOneLatestLocation;
     }
 }
