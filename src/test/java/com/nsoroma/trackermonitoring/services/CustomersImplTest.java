@@ -1,6 +1,8 @@
 package com.nsoroma.trackermonitoring.services;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.client.UnitManagerImpl;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.Unit;
 import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiAuthentication;
 import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiCustomerServiceImpl;
 import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Customer;
@@ -24,33 +26,43 @@ public class CustomersImplTest {
 
     private PanelApiAuthentication panelApiAuthentication;
     private PanelApiCustomerServiceImpl panelApiCustomerService;
+    private UnitManagerImpl unitManager;
     CustomersImpl customers;
-    private Customer customer;
 
     @Before
     public void setUp() {
         panelApiAuthentication = mock(PanelApiAuthentication.class);
         panelApiCustomerService = mock(PanelApiCustomerServiceImpl.class);
+        unitManager = mock(UnitManagerImpl.class);
         customers = new CustomersImpl();
         customers.setApiAuthentication(panelApiAuthentication);
         customers.setApiCustomerService(panelApiCustomerService);
-        customer = new Customer();
+        customers.setUnitManager(unitManager);
+    }
+
+    @Test
+    public void trimDownCustomers() throws IOException, UnirestException, DataSourceClientResponseException {
+        Customer customer = new Customer();
         customer.setId(12345);
         customer.setFirstName("testFirstName");
         customer.setLastName("testLastName");
         customer.setMiddleName("testMiddleName");
         customer.setLogin("testLogin");
         customer.setDealerId(598764);
-    }
 
-    @Test
-    public void trimDownCustomers() throws IOException, UnirestException, DataSourceClientResponseException {
+        Unit unit = new Unit();
+        unit.setImei("1234567789");
+        unit.setGroupName("Unassigned");
+
         List<Customer> customersList = new ArrayList<>();
         customersList.add(customer);
+
+        List<Unit> unitList = new ArrayList<>();
+        unitList.add(unit);
         when(panelApiAuthentication.getDealerHash()).thenReturn("dealerHash");
         when(panelApiCustomerService.getCustomers("dealerHash")).thenReturn(customersList);
+        when(unitManager.getUnits()).thenReturn(unitList);
         List<SlimCustomer> slimCustomerList = customers.getCustomers();
-        assertThat(slimCustomerList.size(), is(1));
-        assertThat(slimCustomerList, contains(hasProperty("customerId", is("12345"))));
+        assertThat(slimCustomerList.size(), is(2));
     }
 }
