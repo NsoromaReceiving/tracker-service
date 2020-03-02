@@ -71,4 +71,8 @@ public class CustomersImpl implements Customers {
         this.apiCustomerService = apiCustomerService;
     }
 
+    protected void setUnitManager(UnitManager unitManager) {
+        this.unitManager = unitManager;
+    }
+
 }
