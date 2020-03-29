@@ -31,16 +31,16 @@ pipelines:
     
     develop:
       - step: &build-deploy-docker-development
-        name: build and deploy to docker-hub
-        services:
-          - docker
-        script:
-          - export IMAGE=hawkmanlabs/nsoroma-tracker-monitoring-service
-          - export IMAGE_NAME=hawkmanlabs/nsoroma-tracker-monitoring-service:develop
+          name: build and deploy to docker-hub for dev
+          services:
+            - docker
+          script:
+            - export IMAGE=hawkmanlabs/nsoroma-tracker-monitoring-service
+            - export IMAGE_NAME=hawkmanlabs/nsoroma-tracker-monitoring-service:develop
 
-          - docker build -t $IMAGE_NAME .
-          - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
-          - docker push $IMAGE
+            - docker build -t $IMAGE_NAME .
+            - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+            - docker push $IMAGE
 
 
 definitions:

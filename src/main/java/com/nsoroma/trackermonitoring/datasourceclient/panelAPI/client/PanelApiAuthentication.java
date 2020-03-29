@@ -34,7 +34,7 @@ public class PanelApiAuthentication {
         if(serverResponse.getStatus() == 200) {
             userHash = serverResponse.getBody().getObject().getString("hash");
         } else {
-            log.debug("User authentication failed");
+            log.error("API authentication failed");
             String status =  String.valueOf(serverResponse.getStatus());
             log.debug(status);
         }
