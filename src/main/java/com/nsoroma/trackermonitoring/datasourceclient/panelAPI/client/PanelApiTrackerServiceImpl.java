@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
@@ -35,7 +36,7 @@ public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
             trackerList = Arrays.asList(objectMapper.readValue(trackerObjectString, Tracker[].class));
         }
 
-        return trackerList;
+        return trackerList.parallelStream().filter(tracker   -> !tracker.getSource().getBlocked() && tracker.getSource().getPhone() != null).collect(Collectors.toList());
     }
 
     @Override
