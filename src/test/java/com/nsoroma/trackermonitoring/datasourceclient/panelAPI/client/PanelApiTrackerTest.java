@@ -50,7 +50,8 @@ public class PanelApiTrackerTest {
         JsonNode json = new JsonNode("{\"list\":[{\"id\":123456789,\"label\":GV2131-19 ,\"dealer_id\":987654321," +
                 " \"group_id\":123459876, \"user_id\":678912345, \"model_name\": testModelName," +
                 " \"deleted\":false, \"creation_date\":someCreationDate, \"clone\":false, \"source\": " +
-                "{\"id\":0192837465, \"device_id\":123456789, \"model\":someTrackerModel, \"phone\":somePhoneNo}}]}");
+                "{\"id\":0192837465, \"device_id\":123456789, \"model\":someTrackerModel, \"phone\":somePhoneNo, " +
+                " \"blocked\":false}}]}");
 
         when(httpResponse.getStatus()).thenReturn(200);
         when(httpResponse.getBody()).thenReturn(json);
@@ -94,7 +95,7 @@ public class PanelApiTrackerTest {
     public void checkConstructTrackersUrlWithUserId() {
         String userId = "testUserId";
         String trackersUrl = panelApiTrackerService.constructTrackersURL(dealerHash, java.util.Optional.of(userId));
-        String expected = host + "tracker/list/?user_id=" + userId + "&hash=" + dealerHash;
+        String expected = host + "tracker/active/list/?user_id=" + userId + "&hash=" + dealerHash;
         assertEquals("wrong tracker url in panel api tracker service", expected, trackersUrl);
     }
 

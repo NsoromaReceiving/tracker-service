@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
@@ -35,7 +36,7 @@ public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
             trackerList = Arrays.asList(objectMapper.readValue(trackerObjectString, Tracker[].class));
         }
 
-        return trackerList;
+        return trackerList.parallelStream().filter(tracker   -> !tracker.getSource().getBlocked() && tracker.getSource().getPhone() != null && !tracker.getClone()).collect(Collectors.toList());
     }
 
     @Override
@@ -58,7 +59,7 @@ public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
     }
 
     protected String constructTrackersURL(String hash, Optional<String> userId) {
-        return userId.map(s -> host + "tracker/list/?user_id=" + s + "&hash=" + hash).orElseGet(() -> host + "tracker/list/?hash=" + hash);
+        return userId.map(s -> host + "tracker/active/list/?user_id=" + s + "&hash=" + hash).orElseGet(() -> host + "tracker/list/?hash=" + hash);
     }
 
     protected void setHost(String host) { this.host = host; }
