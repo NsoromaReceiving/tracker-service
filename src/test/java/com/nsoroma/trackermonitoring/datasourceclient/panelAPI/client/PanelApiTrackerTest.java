@@ -95,7 +95,7 @@ public class PanelApiTrackerTest {
     public void checkConstructTrackersUrlWithUserId() {
         String userId = "testUserId";
         String trackersUrl = panelApiTrackerService.constructTrackersURL(dealerHash, java.util.Optional.of(userId));
-        String expected = host + "tracker/active/list/?user_id=" + userId + "&hash=" + dealerHash;
+        String expected = host + "tracker/list/?user_id=" + userId + "&hash=" + dealerHash;
         assertEquals("wrong tracker url in panel api tracker service", expected, trackersUrl);
     }
 

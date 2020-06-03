@@ -59,7 +59,7 @@ public class PanelApiTrackerServiceImpl implements PanelApiTrackerService {
     }
 
     protected String constructTrackersURL(String hash, Optional<String> userId) {
-        return userId.map(s -> host + "tracker/active/list/?user_id=" + s + "&hash=" + hash).orElseGet(() -> host + "tracker/list/?hash=" + hash);
+        return userId.map(s -> host + "tracker/list/?user_id=" + s + "&hash=" + hash).orElseGet(() -> host + "tracker/list/?hash=" + hash);
     }
 
     protected void setHost(String host) { this.host = host; }
