@@ -46,4 +46,4 @@ pipelines:
 definitions:
   services:
     docker:
-      memory: 2048  #increasing docker memory size
+      memory: 3048  #increasing docker memory size
