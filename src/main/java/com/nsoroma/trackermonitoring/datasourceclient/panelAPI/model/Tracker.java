@@ -31,7 +31,7 @@ public class Tracker {
     @JsonProperty("source")
     private Source source;
     @JsonProperty("deleted")
-    private Boolean deleted;
+    private boolean deleted;
     @JsonProperty("dealer_id")
     private Integer dealerId;
     @JsonProperty("creation_date")
@@ -39,7 +39,7 @@ public class Tracker {
     @JsonProperty("model_name")
     private String modelName;
     @JsonProperty("clone")
-    private Boolean clone;
+    private boolean clone;
 
     @JsonProperty("id")
     public Integer getId() {
@@ -92,12 +92,12 @@ public class Tracker {
     }
 
     @JsonProperty("deleted")
-    public Boolean getDeleted() {
+    public boolean getDeleted() {
         return deleted;
     }
 
     @JsonProperty("deleted")
-    public void setDeleted(Boolean deleted) {
+    public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
 
@@ -132,12 +132,12 @@ public class Tracker {
     }
 
     @JsonProperty("clone")
-    public Boolean getClone() {
+    public boolean getClone() {
         return clone;
     }
 
     @JsonProperty("clone")
-    public void setClone(Boolean clone) {
+    public void setClone(boolean clone) {
         this.clone = clone;
     }
 
