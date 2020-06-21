@@ -8,13 +8,14 @@ public class TrackerState {
     private String customerId;
     @Id
     private String trackerId;
-    private String Imei;
+    private String imei;
     private String model;
     private String phoneNumber;
     private String connectionStatus;
     private String tariffEndDate;
     private String customerName;
     private String lastGpsUpdate;
+    private String lastGsmUpdate;
     private String lastGpsSignalLevel;
     private String lastGpsLatitude;
     private String lastGpsLongitude;
@@ -31,8 +32,8 @@ public class TrackerState {
     public String getTrackerId() { return trackerId; }
     public void setTrackerId(String trackerId) { this.trackerId = trackerId; }
 
-    public String getImei() { return Imei; }
-    public void setImei(String imei) { Imei = imei; }
+    public String getImei() { return imei; }
+    public void setImei(String imei) { this.imei = imei; }
 
     public String getModel() { return model; }
     public void setModel(String model) { this.model = model; }
@@ -69,4 +70,8 @@ public class TrackerState {
 
     public String getGsmNetworkName() { return gsmNetworkName; }
     public void setGsmNetworkName(String gsmNetworkName) { this.gsmNetworkName = gsmNetworkName; }
+
+    public String getLastGsmUpdate() { return lastGsmUpdate; }
+
+    public void setLastGsmUpdate(String lastGsmUpdate) { this.lastGsmUpdate = lastGsmUpdate; }
 }
