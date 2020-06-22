@@ -119,12 +119,41 @@ public class TrackersTest {
         String filterStatus = "someConnectionStatus";
         String order = "asc";
 
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.singleton(mockedTrackerState("someCustomer", trackerId)));
+        TrackerState trackerState1 = mockedTrackerState("someCustomer", trackerId);
+        TrackerState trackerState2 = mockedTrackerState("someOtherCustomer", "23456");
+        trackerState2.setLastGsmUpdate("2020-03-28 11:53:56");
+
+        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
+        trackerStateList.add(trackerState1);
+        trackerStateList.add(trackerState2);
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.of(filterEndDate), Optional.of(filterType),
                 Optional.of(order), trackerStateList, Optional.of(filterStatus));
 
-        assertTrue(EqualsBuilder.reflectionEquals(trackerStateList.stream().findFirst(), trackerStates.stream().findFirst()));
+        assertTrue(EqualsBuilder.reflectionEquals(trackerState1, trackerStates.stream().findFirst().get()));
+    }
+
+    @Test
+    public void filterTrackerStatesDescendingOrder() {
+        String trackerId = "12345";
+        String filterStartDate = "2020-02-15 11:53:56";
+        String filterEndDate = "2020-03-29 11:53:56";
+        String filterType = "someModel";
+        String filterStatus = "someConnectionStatus";
+        String order = "dsc";
+
+        TrackerState trackerState1 = mockedTrackerState("someCustomer", trackerId);
+        TrackerState trackerState2 = mockedTrackerState("someOtherCustomer", "23456");
+        trackerState2.setLastGsmUpdate("2020-03-28 11:53:56");
+
+        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
+        trackerStateList.add(trackerState2);
+        trackerStateList.add(trackerState1);
+
+        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.of(filterEndDate), Optional.of(filterType),
+                Optional.of(order), trackerStateList, Optional.of(filterStatus));
+
+        assertTrue(EqualsBuilder.reflectionEquals(trackerState2, trackerStates.stream().findFirst().get()));
     }
 
 
