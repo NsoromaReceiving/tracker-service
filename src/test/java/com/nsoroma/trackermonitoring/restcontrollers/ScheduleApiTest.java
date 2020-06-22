@@ -6,6 +6,7 @@ import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
 import com.nsoroma.trackermonitoring.model.schedule.Schedule;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.scheduler.service.ScheduleClient;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,6 +95,7 @@ public class ScheduleApiTest {
         ResponseEntity<Schedule> responseEntity =  scheduleApi.scheduleId(scheduleId);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertTrue(EqualsBuilder.reflectionEquals(schedule, responseEntity.getBody()));
     }
 
     @Test

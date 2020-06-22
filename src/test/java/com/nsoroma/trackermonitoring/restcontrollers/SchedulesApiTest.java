@@ -3,6 +3,7 @@ package com.nsoroma.trackermonitoring.restcontrollers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nsoroma.trackermonitoring.model.schedule.Schedule;
 import com.nsoroma.trackermonitoring.scheduler.service.ScheduleClient;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -133,13 +134,13 @@ public class SchedulesApiTest {
         httpServletRequest.removeHeader("Accept");
         httpServletRequest.addHeader("Accept", "application/json");
 
-        Schedule schedule = new Schedule();
         List<Schedule> scheduleList = new ArrayList<>();
         when(scheduleClient.getScheduleList()).thenReturn(scheduleList);
 
         ResponseEntity<List<Schedule>> responseEntity =  schedulesApi.scheduleProfiles();
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertTrue(EqualsBuilder.reflectionEquals(scheduleList, responseEntity.getBody()));
     }
 
     @Test
