@@ -5,6 +5,7 @@ import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiAu
 import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiCustomerServiceImpl;
 import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Customer;
 import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,12 +45,17 @@ public class CustomersImplTest {
 
     @Test
     public void trimDownCustomers() throws IOException, UnirestException {
+        SlimCustomer customerSlim = new SlimCustomer();
+        customerSlim.setLogin("testLogin");
+        customerSlim.setCustomerName("testFirstName testMiddleName testLastName");
+        customerSlim.setCustomerId("12345");
+
         List<Customer> customersList = new ArrayList<>();
         customersList.add(customer);
         when(panelApiAuthentication.getDealerHash()).thenReturn("dealerHash");
         when(panelApiCustomerService.getCustomers("dealerHash")).thenReturn(customersList);
         List<SlimCustomer> slimCustomerList = customers.getCustomers();
         assertThat(slimCustomerList.size(), is(1));
-        assertThat(slimCustomerList, contains(hasProperty("customerId", is("12345"))));
+        assertTrue(EqualsBuilder.reflectionEquals(customerSlim, slimCustomerList.get(0)));
     }
 }
