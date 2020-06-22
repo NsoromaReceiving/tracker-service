@@ -64,11 +64,9 @@ public class Trackers {
             List<Tracker> customerTrackers = trackerList.parallelStream().filter(tracker ->
                     tracker.getUserId().toString().equals(customer.getId().toString())).collect(Collectors.toList()); //filters for trackers that belong to this customer ID
 
-            if (!customerTrackerLastStateList.isEmpty()) {
-                for (TrackerLastState trackerLastState: customerTrackerLastStateList) {
-                    TrackerState trackerState = new TrackerState();
-                    trackerStates.add(trackerStateData(trackerState,customerTrackers,trackerLastState,customer)); // sets the trackerState data and adds to List
-                }
+            for (TrackerLastState trackerLastState: customerTrackerLastStateList) {
+                TrackerState trackerState = new TrackerState();
+                trackerStates.add(trackerStateData(trackerState, customerTrackers, trackerLastState, customer)); // sets the trackerState data and adds to List
             }
         } else {
             trackerStates.addAll(trackerStateRepository.findAll());
@@ -89,11 +87,10 @@ public class Trackers {
         for(Customer customer: customerList) {
             List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customer.getId().toString(), trackerList, hash);
             List<Tracker> customerTrackers = trackerList.parallelStream().filter(tracker -> tracker.getUserId().toString().equals(customer.getId().toString())).collect(Collectors.toList());
-            if (!customerTrackerLastStateList.isEmpty()) {
-                for (TrackerLastState trackerLastState : customerTrackerLastStateList) {
-                    TrackerState trackerState = new TrackerState();
-                    trackerStates.add(trackerStateData(trackerState, customerTrackers, trackerLastState, customer));
-                }
+
+            for (TrackerLastState trackerLastState : customerTrackerLastStateList) {
+                TrackerState trackerState = new TrackerState();
+                trackerStates.add(trackerStateData(trackerState, customerTrackers, trackerLastState, customer));
             }
         }
 
@@ -187,21 +184,15 @@ public class Trackers {
     protected List<TrackerLastState> getTrackerStateList(String customerId, List<Tracker> trackers, String hash) throws IOException, UnirestException {
         String customerHash = customerService.getCustomerHash(hash, customerId);
         List<String> trackerIds = getCustomerTrackerIdList(trackers, customerId);
-        List<TrackerLastState> trackerLastStateList = new ArrayList<>();
-        if(!trackerIds.isEmpty()) {
-            trackerLastStateList = apiTrackerService.getTrackerLastState(customerHash, trackerIds);
-        }
-        return trackerLastStateList;
+        return apiTrackerService.getTrackerLastState(customerHash, trackerIds);
     }
 
     //Bundles all trackerId for a particular customer into a list
     private List<String> getCustomerTrackerIdList(List<Tracker> trackers, String customerId) {
-        List<Tracker> customerTrackers = trackers.stream().filter(tracker -> tracker.getUserId().toString().equals(customerId)).collect(Collectors.toList());
+        List<Tracker> customerTrackers = trackers.stream().filter(tracker -> tracker.getUserId().toString().equals(customerId) && !tracker.getDeleted() && !tracker.getSource().getBlocked()).collect(Collectors.toList()); //note that IDs of deleted/hidden trackers are still returned hence their state cannot be retrieved
         List<String> customerTrackerIds = new ArrayList<>();
         for(Tracker customerTracker: customerTrackers) {
-            if(!customerTracker.getDeleted() && !customerTracker.getSource().getBlocked()) { //note that IDs of deleted/hidden trackers are still returned hence their state cannot be retrieved
-                customerTrackerIds.add(customerTracker.getId().toString());
-            }
+            customerTrackerIds.add(customerTracker.getId().toString());
         }
         return customerTrackerIds;
     }
