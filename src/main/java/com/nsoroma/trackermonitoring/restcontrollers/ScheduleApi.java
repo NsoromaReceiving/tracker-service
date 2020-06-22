@@ -47,8 +47,7 @@ public interface ScheduleApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! deleted schedule with ID"),
         @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/api/schedule/{id}",
-        method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/api/schedule/{id}")
     @CrossOrigin
     default ResponseEntity<Void> scheduleDelete(@ApiParam(value = "", required = true) @PathVariable("id") String id){
         if(getAcceptHeader().isPresent()) {
@@ -68,9 +67,7 @@ public interface ScheduleApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! returns schedule with ID", response = Schedule.class),
         @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/api/schedule/{id}",
-        produces = { "application/json" },
-        method = RequestMethod.GET)
+    @GetMapping(value = "/api/schedule/{id}", produces = { "application/json" })
     @CrossOrigin
     default ResponseEntity<Schedule> scheduleId(@ApiParam(value = "", required = true) @PathVariable("id") String id) {
         if(getAcceptHeader().isPresent()) {
@@ -88,9 +85,7 @@ public interface ScheduleApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! updated schedule with ID"),
         @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/api/schedule/{id}",
-        consumes = { "application/json" },
-        method = RequestMethod.PUT)
+    @PutMapping(value = "/api/schedule/{id}", consumes = { "application/json" })
     @CrossOrigin
     default ResponseEntity<Void> scheduleUpdate(@ApiParam(value = "", required = true) @PathVariable("id") String id, @ApiParam(value = "", required = true) @Valid @RequestBody Schedule scheduleUpdate) {
         if(getAcceptHeader().isPresent()) {

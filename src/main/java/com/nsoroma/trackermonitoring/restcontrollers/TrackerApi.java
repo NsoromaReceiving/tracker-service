@@ -13,10 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -49,9 +46,7 @@ public interface TrackerApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success! returns tracker with ID", response = TrackerState.class),
         @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/api/tracker/{id}",
-        produces = { "application/json" },
-        method = RequestMethod.GET)
+    @GetMapping(value = "/api/tracker/{id}", produces = { "application/json" })
     @CrossOrigin
     default ResponseEntity<TrackerState> trackerID(@ApiParam(value = "", required = true) @PathVariable("id") String id) {
         if(getAcceptHeader().isPresent()) {
@@ -77,9 +72,7 @@ public interface TrackerApi {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "success! returns tracker with Imei", response = TrackerState.class),
             @ApiResponse(code = 400, message = "bad path parameter") })
-    @RequestMapping(value = "/api/tracker/imei/{imei}",
-            produces = { "application/json" },
-            method = RequestMethod.GET)
+    @GetMapping(value = "/api/tracker/imei/{imei}", produces = { "application/json" })
     @CrossOrigin
     default ResponseEntity<TrackerState> trackerByImei(@ApiParam(value = "", required = true) @PathVariable("imei") String imei) {
         if(getAcceptHeader().isPresent()) {
