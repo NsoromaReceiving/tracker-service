@@ -198,7 +198,7 @@ public class TrackersTest {
 
         TrackerState trackerState1 = mockedTrackerState("someCustomer", trackerId);
         TrackerState trackerState2 = mockedTrackerState("someOtherCustomer", "23456");
-        trackerState2.setLastGsmUpdate("2020-02-15 11:53:56");
+        trackerState2.setLastGsmUpdate("2020-08-15 11:53:56");
         TrackerState trackerState3 = mockedTrackerState("otherCustomer", "13434");
         trackerState3.setLastGsmUpdate("wrongDateFormat");
 
@@ -209,8 +209,6 @@ public class TrackersTest {
 
         LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
                 Optional.of("dsc"), trackerStateList, Optional.empty());
-
-        assertTrue(EqualsBuilder.reflectionEquals(trackerState1, trackerStates.stream().findFirst().get()));
         assertEquals(3, trackerStates.size());
     }
 
