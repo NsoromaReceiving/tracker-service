@@ -14,7 +14,6 @@ import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Source;
 import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
-import com.nsoroma.trackermonitoring.serviceutils.TrackerStateUtils;
 import com.nsoroma.trackermonitoring.serviceutils.TrackerStateUtilsImpl;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
@@ -23,14 +22,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.contains;
 
 public class TrackersTest {
 
@@ -154,6 +149,69 @@ public class TrackersTest {
                 Optional.of(order), trackerStateList, Optional.of(filterStatus));
 
         assertTrue(EqualsBuilder.reflectionEquals(trackerState2, trackerStates.stream().findFirst().get()));
+    }
+
+
+    @Test
+    public void throwDateParseExceptionWhenFilteringStartDate() {
+        String trackerId = "12345";
+        String filterStartDate = "2020-02-15 11:53:56";
+
+        TrackerState trackerState1 = mockedTrackerState("someCustomer", trackerId);
+        TrackerState trackerState2 = mockedTrackerState("someOtherCustomer", "23456");
+        trackerState2.setLastGsmUpdate("wrongDateFormat");
+
+        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
+        trackerStateList.add(trackerState1);
+        trackerStateList.add(trackerState2);
+
+        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.empty(), Optional.empty(),
+                Optional.empty(), trackerStateList, Optional.empty());
+
+        assertTrue(EqualsBuilder.reflectionEquals(trackerState1, trackerStates.stream().findFirst().get()));
+        assertEquals(1, trackerStates.size());
+    }
+
+    @Test
+    public void throwDateParseExceptionWhenFilteringEndDate() {
+        String trackerId = "12345";
+        String filterEndDate = "2020-04-15 11:53:56";
+
+        TrackerState trackerState1 = mockedTrackerState("someCustomer", trackerId);
+        TrackerState trackerState2 = mockedTrackerState("someOtherCustomer", "23456");
+        trackerState2.setLastGsmUpdate("wrongDateFormat");
+
+        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
+        trackerStateList.add(trackerState1);
+        trackerStateList.add(trackerState2);
+
+        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.of(filterEndDate), Optional.empty(),
+                Optional.empty(), trackerStateList, Optional.empty());
+
+        assertTrue(EqualsBuilder.reflectionEquals(trackerState1, trackerStates.stream().findFirst().get()));
+        assertEquals(1, trackerStates.size());
+    }
+
+    @Test
+    public void throwDateParseExceptionWhenOrdering() {
+        String trackerId = "12345";
+
+        TrackerState trackerState1 = mockedTrackerState("someCustomer", trackerId);
+        TrackerState trackerState2 = mockedTrackerState("someOtherCustomer", "23456");
+        trackerState2.setLastGsmUpdate("2020-02-15 11:53:56");
+        TrackerState trackerState3 = mockedTrackerState("otherCustomer", "13434");
+        trackerState3.setLastGsmUpdate("wrongDateFormat");
+
+        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
+        trackerStateList.add(trackerState1);
+        trackerStateList.add(trackerState2);
+        trackerStateList.add(trackerState3);
+
+        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
+                Optional.of("dsc"), trackerStateList, Optional.empty());
+
+        assertTrue(EqualsBuilder.reflectionEquals(trackerState1, trackerStates.stream().findFirst().get()));
+        assertEquals(3, trackerStates.size());
     }
 
 
