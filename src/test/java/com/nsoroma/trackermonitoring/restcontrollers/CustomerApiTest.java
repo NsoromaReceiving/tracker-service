@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
 import com.nsoroma.trackermonitoring.services.Customers;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +52,7 @@ public class CustomerApiTest {
         ResponseEntity<List<SlimCustomer>> responseEntity =  customerApi.Customers();
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertTrue(EqualsBuilder.reflectionEquals(slimCustomers, responseEntity.getBody()));
     }
 
     @Test
