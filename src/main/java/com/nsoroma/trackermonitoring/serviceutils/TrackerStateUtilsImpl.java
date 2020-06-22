@@ -2,14 +2,15 @@ package com.nsoroma.trackermonitoring.serviceutils;
 
 import com.nsoroma.trackermonitoring.datasourceclient.api.model.TrackerLastState;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
+import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
 public class TrackerStateUtilsImpl implements TrackerStateUtils {
-
 
     public void checkAndSetGpsData(TrackerState trackerState, TrackerLastState trackerLastState) {
         if (trackerLastState.getGps().getUpdated() != null) {
