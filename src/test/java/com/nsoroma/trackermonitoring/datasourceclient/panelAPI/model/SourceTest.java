@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class SourceTest {
     @Test
     public void testSlimCustomer() {
-        Configuration configuration = new ConfigurationBuilder().iterations(1).build();
+        Configuration configuration = new ConfigurationBuilder().ignoreProperty("clone").iterations(1).build();
         new BeanTester().testBean(Source.class, configuration);
     }
 }

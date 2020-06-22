@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class CustomerTest {
     @Test
     public void testSlimCustomer() {
-        Configuration configuration = new ConfigurationBuilder().iterations(1).build();
+        Configuration configuration = new ConfigurationBuilder().ignoreProperty("phoneVerified").ignoreProperty("verified").iterations(1).build();
         new BeanTester().testBean(Customer.class, configuration);
     }
 }
