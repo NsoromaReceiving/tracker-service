@@ -14,6 +14,9 @@ import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Source;
 import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
+import com.nsoroma.trackermonitoring.serviceutils.TrackerStateUtils;
+import com.nsoroma.trackermonitoring.serviceutils.TrackerStateUtilsImpl;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +42,6 @@ public class TrackersTest {
     private PanelApiTrackerServiceImpl panelApiTrackerService;
     private ApiTrackerServiceImpl apiTrackerService;
     private TrackerStateRepository trackerStateRepository;
-
     private Trackers trackers;
 
 
@@ -52,11 +54,14 @@ public class TrackersTest {
         apiTrackerService = mock(ApiTrackerServiceImpl.class);
         trackerStateRepository = mock(TrackerStateRepository.class);
         trackers = spy(new Trackers());
+        TrackerStateUtilsImpl trackerStateUtils = new TrackerStateUtilsImpl();
+
         trackers.setDealerAuthClient(dealerAuthClient);
         trackers.setCustomerService(customerService);
         trackers.setPanelTrackersService(panelApiTrackerService);
         trackers.setApiTrackerService(apiTrackerService);
         trackers.setTrackerStateRepository(trackerStateRepository);
+        trackers.setTrackerStateUtils(trackerStateUtils);
 
 
     }
@@ -68,18 +73,10 @@ public class TrackersTest {
         String dealerHash = "dealerHash";
         String customerHash = "customerHash";
 
-        Tracker mockedTracker = mockedTracker(customerId, trackerId);
-        List<Tracker> trackerList = new ArrayList<>();
-        trackerList.add(mockedTracker);
-
+        List<Tracker> trackerList = Collections.singletonList(mockedTracker(customerId, trackerId));
         Customer mockedCustomer = mockedCustomer(customerId);
-
-        TrackerLastState trackerLastState = mockTrackerLastState(trackerId);
-        List<TrackerLastState> trackerLastStates = new ArrayList<>();
-        trackerLastStates.add(trackerLastState);
-
-        List<String> trackerIds = new ArrayList<>();
-        trackerIds.add(trackerId.toString());
+        List<TrackerLastState> trackerLastStates = Collections.singletonList(mockTrackerLastState(trackerId));
+        List<String> trackerIds = Collections.singletonList(trackerId.toString());
 
 
         when(dealerAuthClient.getDealerHash()).thenReturn(dealerHash);
@@ -92,351 +89,43 @@ public class TrackersTest {
                 Optional.empty(), Optional.empty(), Optional.empty());
 
         verify(trackerStateRepository, never()).findAll();
-        assertThat(trackerStates.size(), is(1));
-        assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId.toString()))));
+        assertTrue(EqualsBuilder.reflectionEquals(mockedTrackerState(customerId.toString(),trackerId.toString()), trackerStates.stream().findFirst().get()));
     }
 
 
 
     @Test
-    public void getAllTrackersWithoutSpecifiedCustomerId() throws IOException, UnirestException {
-        Optional<String> customerId = Optional.empty();
+    public void getAllTrackersWithoutACustomerId() throws IOException, UnirestException {
         String trackerId = "12345";
+        String someCustomer = "someCustomer";
 
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        List<TrackerState> trackerStateList = new ArrayList<>(Collections.emptyList());
-        trackerStateList.add(trackerState);
+        when(trackerStateRepository.findAll()).thenReturn(Collections.singletonList(mockedTrackerState(someCustomer, trackerId)));
 
-        when(trackerStateRepository.findAll()).thenReturn(trackerStateList);
-
-        LinkedHashSet<TrackerState> trackerStates =  trackers.getTrackers(Optional.empty(),Optional.empty(), customerId,
+        LinkedHashSet<TrackerState> trackerStates =  trackers.getTrackers(Optional.empty(),Optional.empty(), Optional.empty(),
                 Optional.empty(), Optional.empty(), Optional.empty());
 
         verify(trackerStateRepository).findAll();
-        assertThat(trackerStates.size(), is(1));
-        assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId.toString()))));
+        assertTrue(EqualsBuilder.reflectionEquals(mockedTrackerState(someCustomer,trackerId), trackerStates.stream().findFirst().get()));
+
     }
 
-    @Test
-    public void returnEmptyTrackerListWhenNoTrackerAreAvailable() throws IOException, UnirestException {
-        Integer customerId = 657483;
-        Integer trackerId = 12345;
-        String dealerHash = "dealerHash";
-        String customerHash = "customerHash";
-
-        Tracker mockedTracker = mockedTracker(customerId, trackerId);
-        List<Tracker> trackerList = new ArrayList<>();
-        trackerList.add(mockedTracker);
-
-        Customer mockedCustomer = mockedCustomer(customerId);
-
-        List<TrackerLastState> trackerLastStates = new ArrayList<>();
-
-        List<String> trackerIds = new ArrayList<>();
-        trackerIds.add(trackerId.toString());
-
-
-        when(dealerAuthClient.getDealerHash()).thenReturn(dealerHash);
-        when(customerService.getCustomerHash(dealerHash,customerId.toString())).thenReturn(customerHash);
-        when(apiTrackerService.getTrackerLastState(customerHash, trackerIds)).thenReturn(trackerLastStates);
-        when(panelApiTrackerService.getTrackerList(dealerHash, Optional.of(customerId.toString()))).thenReturn(trackerList);
-        when(customerService.getCustomer(dealerHash, customerId.toString())).thenReturn(mockedCustomer);
-
-        LinkedHashSet<TrackerState> trackerStates =  trackers.getTrackers(Optional.empty(),Optional.empty(), Optional.of(customerId.toString()),
-                Optional.empty(), Optional.empty(), Optional.empty());
-
-        verify(trackerStateRepository, never()).findAll();
-        assertThat(trackerStates.size(), is(0));
-    }
 
     @Test
-    public void filterTrackerStatesByStartDateAdded() {
+    public void filterTrackerStatesAscendingOrder() {
         String trackerId = "12345";
-        String lastGpsUpdate = "2020-01-30 11:53:56";
-        String filterStartDate = "2020-01-29 11:53:56";
+        String filterStartDate = "2020-02-15 11:53:56";
+        String filterEndDate = "2020-03-29 11:53:56";
+        String filterType = "someModel";
+        String filterStatus = "someConnectionStatus";
+        String order = "asc";
 
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setLastGpsUpdate(lastGpsUpdate);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
+        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.singleton(mockedTrackerState("someCustomer", trackerId)));
 
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
-        assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId))));
+        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.of(filterEndDate), Optional.of(filterType),
+                Optional.of(order), trackerStateList, Optional.of(filterStatus));
+
+        assertTrue(EqualsBuilder.reflectionEquals(trackerStateList.stream().findFirst(), trackerStates.stream().findFirst()));
     }
-
-    @Test
-    public void filterTrackerStatesByStartDateThrowsDateParseException() throws DateTimeParseException {
-
-        String trackerId = "12345";
-        String lastGpsUpdate = "2020-01-30 11:53:56";
-        String filterStartDate = "incorrectDateFormat";
-
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setLastGpsUpdate(lastGpsUpdate);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
-
-        //exception.expect(java.text.ParseException.class);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
-        assertFalse(false);
-
-    }
-
-    @Test
-    public void filterTrackerStatesByStartDateNotAdded() {
-        String trackerId = "12345";
-        String lastGpsUpdate = "2020-01-30 11:53:56";
-        String filterStartDate = "2020-01-31 11:53:56";
-
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setLastGpsUpdate(lastGpsUpdate);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.of(filterStartDate), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
-        assertThat(trackerStates.size(), is(0));
-    }
-
-    @Test
-    public void filterTrackerStatesByEndDateAdded() {
-        String trackerId = "12345";
-        String lastGpsUpdate = "2020-01-15 11:53:56";
-        String filterEndDate = "2020-01-30 11:53:56";
-
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setLastGpsUpdate(lastGpsUpdate);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.of(filterEndDate), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
-        assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId))));
-    }
-
-    @Test
-    public void filterTrackerStatesByEndDateNotAdded() {
-        String trackerId = "12345";
-        String lastGpsUpdate = "2020-01-30 11:53:56";
-        String filterEndDate = "2020-01-27 11:53:56";
-
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setLastGpsUpdate(lastGpsUpdate);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.of(filterEndDate), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
-        assertThat(trackerStates.size(), is(0));
-    }
-
-    @Test
-    public void filterTrackerStatesByEndDateThrowsDateParseException() throws DateTimeParseException {
-
-        String trackerId = "12345";
-        String lastGpsUpdate = "2020-01-30 11:53:56";
-        String filterEndDate = "incorrectDateFormat";
-
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setLastGpsUpdate(lastGpsUpdate);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.of(filterEndDate), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.empty());
-        assertFalse(false);
-
-    }
-
-    @Test
-    public void filterTrackerStatesByModelAdded() {
-        String trackerId = "12345";
-        String trackerModel = "testTrackerModel";
-        String filterTrackerModel = "testTrackerModel";
-
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setModel(trackerModel);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.of(filterTrackerModel),
-                Optional.empty(), trackerStateList, Optional.empty());
-        assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId))));
-    }
-
-    @Test
-    public void filterTrackerStatesByModelNotAdded() {
-        String trackerId = "12345";
-        String trackerModel = "testTrackerModel";
-        String filterTrackerModel = "notTestTrackerModel";
-
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setModel(trackerModel);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.of(filterTrackerModel),
-                Optional.empty(), trackerStateList, Optional.empty());
-        assertThat(trackerStates.size(), is(0));
-    }
-
-    @Test
-    public void filterTrackerStatesByStatusAdded() {
-        String trackerId = "12345";
-        String trackerStatus = "active";
-        String filterTrackerStatus = "active";
-
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setConnectionStatus(trackerStatus);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.of(filterTrackerStatus));
-        assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId))));
-    }
-
-    @Test
-    public void filterTrackerStatesByStatusNotAdded() {
-        String trackerId = "12345";
-        String trackerStatus = "active";
-        String filterTrackerStatus = "idle";
-
-        TrackerState trackerState = new TrackerState();
-        trackerState.setTrackerId(trackerId);
-        trackerState.setConnectionStatus(trackerStatus);
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty(), trackerStateList, Optional.of(filterTrackerStatus));
-        assertThat(trackerStates.size(), is(0));
-    }
-
-    @Test
-    public void filterTrackerStatesByOrderDescending() {
-        String trackerId1 = "12345";
-        String trackerId2 = "54321";
-        String lastGpsUpdate1 = "2020-01-30 11:53:56";
-        String lastGpsUpdate2 = "2020-01-31 11:53:56";
-        String filterOrder = "dsc";
-
-        TrackerState trackerState1 = new TrackerState();
-        trackerState1.setTrackerId(trackerId1);
-        trackerState1.setLastGpsUpdate(lastGpsUpdate1);
-
-        TrackerState trackerState2 = new TrackerState();
-        trackerState2.setTrackerId(trackerId2);
-        trackerState2.setLastGpsUpdate(lastGpsUpdate2);
-
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState1); //intentionally putting lowest date first
-        trackerStateList.add(trackerState2);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.of(filterOrder), trackerStateList, Optional.empty());
-        List<TrackerState> trackerStateArray = new ArrayList<>(trackerStates);
-
-        assertThat(trackerStates.size(), is(2));
-        assertThat(trackerStateArray.get(0), hasProperty("trackerId", is(trackerId2)));
-    }
-
-    @Test
-    public void filterTrackerStatesByOrderAscending() {
-        String trackerId1 = "12345";
-        String trackerId2 = "54321";
-        String lastGpsUpdate1 = "2020-01-30 11:53:56";
-        String lastGpsUpdate2 = "2020-01-31 11:53:56";
-        String filterOrder = "asc";
-
-        TrackerState trackerState1 = new TrackerState();
-        trackerState1.setTrackerId(trackerId1);
-        trackerState1.setLastGpsUpdate(lastGpsUpdate1);
-
-        TrackerState trackerState2 = new TrackerState();
-        trackerState2.setTrackerId(trackerId2);
-        trackerState2.setLastGpsUpdate(lastGpsUpdate2);
-
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState2); //deliberately putting highest date first
-        trackerStateList.add(trackerState1);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.of(filterOrder), trackerStateList, Optional.empty());
-        List<TrackerState> trackerStateArray = new ArrayList<>(trackerStates);
-
-        assertThat(trackerStates.size(), is(2));
-        assertThat(trackerStateArray.get(0), hasProperty("trackerId", is(trackerId1)));
-    }
-
-    @Test
-    public void filterByOrderThrowsDateParseException() throws DateTimeParseException {
-        String trackerId1 = "12345";
-        String trackerId2 = "54321";
-        String lastGpsUpdate1 = "inCorrectDateFormat";
-        String lastGpsUpdate2 = "2020-01-31 11:53:56";
-        String filterOrder = "asc";
-
-        TrackerState trackerState1 = new TrackerState();
-        trackerState1.setTrackerId(trackerId1);
-        trackerState1.setLastGpsUpdate(lastGpsUpdate1);
-
-        TrackerState trackerState2 = new TrackerState();
-        trackerState2.setTrackerId(trackerId2);
-        trackerState2.setLastGpsUpdate(lastGpsUpdate2);
-
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState2);
-        trackerStateList.add(trackerState1);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.of(filterOrder), trackerStateList, Optional.empty());
-        List<TrackerState> trackerStateArray = new ArrayList<>(trackerStates);
-
-        assertFalse(false);
-
-    }
-
-
-    @Test
-    public void returnFalseWhenStartAndEndDatesAreNull() throws DateTimeParseException {
-        String trackerId1 = "12345";
-        String trackerId2 = "54321";
-        String filterOrder = "asc";
-
-        TrackerState trackerState1 = new TrackerState();
-        trackerState1.setTrackerId(trackerId1);
-        trackerState1.setLastGpsUpdate(null);
-
-        TrackerState trackerState2 = new TrackerState();
-        trackerState2.setTrackerId(trackerId2);
-        trackerState2.setLastGpsUpdate(null);
-
-        Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
-        trackerStateList.add(trackerState2);
-        trackerStateList.add(trackerState1);
-
-        LinkedHashSet<TrackerState> trackerStates = trackers.filterTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.of(filterOrder), trackerStateList, Optional.empty());
-        List<TrackerState> trackerStateArray = new ArrayList<>(trackerStates);
-
-        assertFalse(false);
-
-    }
-
 
 
     @Test
@@ -444,59 +133,24 @@ public class TrackersTest {
         Integer customerId = 657483;
         Integer trackerId = 12345;
         String dealerHash = "dealerHash";
+        String customerHash = "customerHash";
 
-        Tracker mockedTracker = mockedTracker(customerId, trackerId);
-        List<Tracker> trackerList = new ArrayList<>();
-        trackerList.add(mockedTracker);
-
-        Customer mockedCustomer = mockedCustomer(customerId);
-        List<Customer> customerList = new ArrayList<>();
-        customerList.add(mockedCustomer);
-
-        TrackerLastState trackerLastState = mockTrackerLastState(trackerId);
-        List<TrackerLastState> trackerLastStates = new ArrayList<>();
-        trackerLastStates.add(trackerLastState);
-
+        List<Tracker> trackerList = Collections.singletonList(mockedTracker(customerId, trackerId));
+        List<Customer> customerList = Collections.singletonList(mockedCustomer(customerId));
+        List<String> trackerIds = Collections.singletonList(trackerId.toString());
+        List<TrackerLastState> trackerLastStates = Collections.singletonList(mockTrackerLastState(trackerId));
 
         when(dealerAuthClient.getDealerHash()).thenReturn(dealerHash);
         when(customerService.getCustomers(dealerHash)).thenReturn(customerList);
-        doReturn(trackerLastStates).when(trackers).getTrackerStateList(customerId.toString(), trackerList ,dealerHash);
-        doReturn(trackerList).when(trackers).getTrackerList(Optional.empty(), dealerHash);
+        when(panelApiTrackerService.getTrackerList(dealerHash, Optional.empty())).thenReturn(trackerList);
+        when(panelApiTrackerService.getTrackerList(dealerHash, Optional.of(customerId.toString()))).thenReturn(trackerList);
+        when(customerService.getCustomerHash(dealerHash,customerId.toString())).thenReturn(customerHash);
+        when(apiTrackerService.getTrackerLastState(customerHash, trackerIds)).thenReturn(trackerLastStates);
+
         LinkedHashSet<TrackerState> trackerStates =  trackers.getAllTrackerStates();
 
-        assertThat(trackerStates.size(), is(1));
-        assertThat(trackerStates, contains(hasProperty("trackerId", is(trackerId.toString()))));
+        assertTrue(EqualsBuilder.reflectionEquals(mockedTrackerState(customerId.toString(),trackerId.toString()), trackerStates.stream().findFirst().get()));
     }
-
-
-
-    @Test
-    public void returnEmptyTrackersInGetAllTrackerStatesWhenNoTrackersAreFound() throws IOException, UnirestException {
-        Integer customerId = 657483;
-        Integer trackerId = 12345;
-        String dealerHash = "dealerHash";
-
-        Tracker mockedTracker = mockedTracker(customerId, trackerId);
-        List<Tracker> trackerList = new ArrayList<>();
-        trackerList.add(mockedTracker);
-
-        Customer mockedCustomer = mockedCustomer(customerId);
-        List<Customer> customerList = new ArrayList<>();
-        customerList.add(mockedCustomer);
-
-        List<TrackerLastState> trackerLastStates = new ArrayList<>();
-
-
-        when(dealerAuthClient.getDealerHash()).thenReturn(dealerHash);
-        when(customerService.getCustomers(dealerHash)).thenReturn(customerList);
-        doReturn(trackerLastStates).when(trackers).getTrackerStateList(customerId.toString(), trackerList ,dealerHash);
-        doReturn(trackerList).when(trackers).getTrackerList(Optional.empty(), dealerHash);
-        LinkedHashSet<TrackerState> trackerStates =  trackers.getAllTrackerStates();
-
-        assertThat(trackerStates.size(), is(0));
-    }
-
-
 
     @Test
     public void getTracker() throws IOException, UnirestException {
@@ -506,16 +160,9 @@ public class TrackersTest {
         String customerHash = "customerHash";
 
         Tracker mockedTracker = mockedTracker(customerId, trackerId);
-
         Customer mockedCustomer = mockedCustomer(customerId);
-
-        TrackerLastState trackerLastState = mockTrackerLastState(trackerId);
-
-        List<TrackerLastState> trackerLastStateList = new ArrayList<>();
-        trackerLastStateList.add(trackerLastState);
-
-        ArrayList<String> trackerIdList = new ArrayList<>();
-        trackerIdList.add(trackerId.toString());
+        List<TrackerLastState> trackerLastStateList = Collections.singletonList(mockTrackerLastState(trackerId));
+        List<String> trackerIdList = Collections.singletonList(trackerId.toString());
 
         when(dealerAuthClient.getDealerHash()).thenReturn(dealerHash);
         when(panelApiTrackerService.getTracker(dealerHash,trackerId.toString())).thenReturn(mockedTracker);
@@ -525,7 +172,7 @@ public class TrackersTest {
 
         TrackerState trackerStates =  trackers.getTracker(trackerId.toString());
 
-        assertThat(trackerStates, hasProperty("trackerId", is(trackerId.toString())));
+        assertTrue(EqualsBuilder.reflectionEquals(mockedTrackerState(customerId.toString(), trackerId.toString()), trackerStates));
     }
 
     @Test
@@ -536,20 +183,10 @@ public class TrackersTest {
         String dealerHash = "dealerHash";
         String customerHash = "customerHash";
 
-
-        Tracker mockedTracker = mockedTracker(customerId, trackerId);
-        List<Tracker> trackerList = new ArrayList<>();
-        trackerList.add(mockedTracker);
-
+        List<Tracker> trackerList = Collections.singletonList(mockedTracker(customerId, trackerId));
         Customer mockedCustomer = mockedCustomer(customerId);
-
-        TrackerLastState trackerLastState = mockTrackerLastState(trackerId);
-
-        List<TrackerLastState> trackerLastStateList = new ArrayList<>();
-        trackerLastStateList.add(trackerLastState);
-
-        ArrayList<String> trackerIdList = new ArrayList<>();
-        trackerIdList.add(trackerId.toString());
+        List<TrackerLastState> trackerLastStateList = Collections.singletonList(mockTrackerLastState(trackerId));
+        List<String> trackerIdList = Collections.singletonList(trackerId.toString());
 
         when(dealerAuthClient.getDealerHash()).thenReturn(dealerHash);
         when(panelApiTrackerService.getTrackerList(dealerHash, Optional.empty())).thenReturn(trackerList);
@@ -557,9 +194,9 @@ public class TrackersTest {
         when(customerService.getCustomer(dealerHash, customerId.toString())).thenReturn(mockedCustomer);
         when(apiTrackerService.getTrackerLastState(customerHash, trackerIdList)).thenReturn(trackerLastStateList);
 
-        TrackerState trackerStates =  trackers.getTrackerByImei(trackerImei.toString());
+        TrackerState trackerState =  trackers.getTrackerByImei(trackerImei.toString());
 
-        assertThat(trackerStates, hasProperty("trackerId", is(trackerId.toString())));
+        assertTrue(EqualsBuilder.reflectionEquals(mockedTrackerState(customerId.toString(), trackerId.toString()), trackerState));
     }
 
 
@@ -582,6 +219,10 @@ public class TrackersTest {
         trackerSource.setBlocked(false);
         trackerSource.setId(trackerId);
         trackerSource.setDeviceId("123456789");
+        trackerSource.setModel("someModel");
+        trackerSource.setPhone("0233446456");
+        trackerSource.setConnectionStatus("someConnectionStatus");
+        trackerSource.setTariffEndDate("someTariffEndDate");
 
         Tracker tracker = new Tracker();
         tracker.setId(trackerId);
@@ -600,11 +241,12 @@ public class TrackersTest {
         location.setLng(-1.2342344);
 
         Gps gps = new Gps();
-        gps.setUpdated("testLastUpdateDate");
+        gps.setUpdated("2020-01-30 11:53:56");
         gps.setSignalLevel(100);
         gps.setLocation(location);
 
         Gsm gsm = new Gsm();
+        gsm.setUpdated("2020-02-25 11:53:56");
         gsm.setNetworkName("MTN");
         gsm.setSignalLevel(89);
 
@@ -615,5 +257,29 @@ public class TrackersTest {
         trackerLastState.setBatteryLevel(60);
 
         return trackerLastState;
+    }
+
+    private TrackerState mockedTrackerState(String customerId, String trackerId) {
+        TrackerState trackerState = new TrackerState();
+        trackerState.setLabel("GV-34334");
+        trackerState.setTrackerId(trackerId);
+        trackerState.setCustomerId(customerId);
+        trackerState.setImei("123456789");
+        trackerState.setModel("someModel");
+        trackerState.setPhoneNumber("0233446456");
+        trackerState.setConnectionStatus("someConnectionStatus");
+        trackerState.setTariffEndDate("someTariffEndDate");
+        trackerState.setCustomerName("testFirstName testMiddleName testLastName");
+        trackerState.setLastGpsUpdate("2020-01-30 11:53:56");
+        trackerState.setLastGsmUpdate("2020-02-25 11:53:56");
+        trackerState.setLastGpsSignalLevel("100");
+        trackerState.setLastGpsLatitude("0.1241234");
+        trackerState.setLastGpsLongitude("-1.2342344");
+        trackerState.setLastBatteryLevel("60");
+        trackerState.setGsmSignalLevel("89");
+        trackerState.setGsmNetworkName("MTN");
+
+        return trackerState;
+
     }
 }
