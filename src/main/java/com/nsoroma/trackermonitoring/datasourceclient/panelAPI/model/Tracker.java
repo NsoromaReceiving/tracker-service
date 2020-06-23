@@ -143,7 +143,7 @@ public class Tracker {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("id", id).append("label", label).append("groupId", groupId).append("userId", userId).append("source", source).append("deleted", deleted).append("dealerId", dealerId).append("creationDate", creationDate).append("modelName", modelName).append("clone", clone).toString();
+        return new ToStringBuilder("Tracker").append("id", id).append("label", label).append("groupId", groupId).append("userId", userId).append("source", source).append("deleted", deleted).append("dealerId", dealerId).append("creationDate", creationDate).append("modelName", modelName).append("clone", clone).toString();
     }
 
 }
