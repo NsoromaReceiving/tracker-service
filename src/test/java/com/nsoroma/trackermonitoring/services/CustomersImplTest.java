@@ -15,8 +15,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasProperty;
 import static org.mockito.Mockito.*;
 
 public class CustomersImplTest {
@@ -24,8 +22,7 @@ public class CustomersImplTest {
 
     private PanelApiAuthentication panelApiAuthentication;
     private PanelApiCustomerServiceImpl panelApiCustomerService;
-    CustomersImpl customers;
-    private Customer customer;
+    private CustomersImpl customers;
 
     @Before
     public void setUp() {
@@ -34,13 +31,6 @@ public class CustomersImplTest {
         customers = new CustomersImpl();
         customers.setApiAuthentication(panelApiAuthentication);
         customers.setApiCustomerService(panelApiCustomerService);
-        customer = new Customer();
-        customer.setId(12345);
-        customer.setFirstName("testFirstName");
-        customer.setLastName("testLastName");
-        customer.setMiddleName("testMiddleName");
-        customer.setLogin("testLogin");
-        customer.setDealerId(598764);
     }
 
     @Test
@@ -48,14 +38,31 @@ public class CustomersImplTest {
         SlimCustomer customerSlim = new SlimCustomer();
         customerSlim.setLogin("testLogin");
         customerSlim.setCustomerName("testFirstName testMiddleName testLastName");
-        customerSlim.setCustomerId("12345");
+        customerSlim.setCustomerId("243343");
+
+        Customer customer1 = mockedCustomer(243343);
+        Customer customer2 = mockedCustomer(242111);
+        customer2.setFirstName("someFirstName");
 
         List<Customer> customersList = new ArrayList<>();
-        customersList.add(customer);
+        customersList.add(customer1);
+        customersList.add(customer2);
         when(panelApiAuthentication.getDealerHash()).thenReturn("dealerHash");
         when(panelApiCustomerService.getCustomers("dealerHash")).thenReturn(customersList);
         List<SlimCustomer> slimCustomerList = customers.getCustomers();
-        assertThat(slimCustomerList.size(), is(1));
-        assertTrue(EqualsBuilder.reflectionEquals(customerSlim, slimCustomerList.get(0)));
+        assertThat(slimCustomerList.size(), is(2));
+        assertTrue(EqualsBuilder.reflectionEquals(customerSlim, slimCustomerList.get(1)));
+    }
+
+    private Customer mockedCustomer(int customerId) {
+        Customer customer = new Customer();
+        customer.setId(customerId);
+        customer.setFirstName("testFirstName");
+        customer.setLastName("testLastName");
+        customer.setMiddleName("testMiddleName");
+        customer.setLogin("testLogin");
+        customer.setDealerId(598764);
+
+        return customer;
     }
 }
