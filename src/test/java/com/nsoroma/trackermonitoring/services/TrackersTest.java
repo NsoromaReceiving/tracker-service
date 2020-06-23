@@ -115,11 +115,13 @@ public class TrackersTest {
         String order = "asc";
 
         TrackerState trackerState1 = mockedTrackerState("someCustomer", trackerId);
-        TrackerState trackerState2 = mockedTrackerState("someOtherCustomer", "23456");
-        trackerState2.setModel("someOtherModel");
-        trackerState2.setLastGsmUpdate("2020-02-18 11:53:56");
+        TrackerState trackerState2 = mockedTrackerState("someCustomer", "34566");
+        trackerState2.setLastGsmUpdate("2020-02-28 11:53:56");
+        TrackerState trackerState3 = mockedTrackerState("someOtherCustomer", "23456");
+        trackerState3.setModel("someOtherModel");
 
         Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
+        trackerStateList.add(trackerState3);
         trackerStateList.add(trackerState2);
         trackerStateList.add(trackerState1);
 
@@ -140,11 +142,15 @@ public class TrackersTest {
 
         TrackerState trackerState1 = mockedTrackerState("someCustomer", trackerId);
 
-        TrackerState trackerState2 = mockedTrackerState("someOtherCustomer", "23456");
-        trackerState2.setConnectionStatus("someOtherConnectionStatus");
-        trackerState2.setLastGsmUpdate("2020-03-28 11:53:56");
+        TrackerState trackerState2 = mockedTrackerState("someCustomer", "34566");
+        trackerState2.setLastGsmUpdate("2020-02-17 11:53:56");
+
+        TrackerState trackerState3 = mockedTrackerState("someOtherCustomer", "23456");
+        trackerState3.setConnectionStatus("someOtherConnectionStatus");
+        trackerState3.setLastGsmUpdate("2020-03-28 11:53:56");
 
         Set<TrackerState> trackerStateList  = new HashSet<>(Collections.emptySet());
+        trackerStateList.add(trackerState3);
         trackerStateList.add(trackerState2);
         trackerStateList.add(trackerState1);
 
