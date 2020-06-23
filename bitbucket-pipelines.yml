@@ -37,7 +37,7 @@ pipelines:
             - docker
           script:
             - export IMAGE=hawkmanlabs/nsoroma-tracker-monitoring-service
-            - export IMAGE_NAME=hawkmanlabs/nsoroma-tracker-monitoring-service:develop
+            - export IMAGE_NAME=hawkmanlabs/nsoroma-tracker-monitoring-service:stable
 
             - docker build -t $IMAGE_NAME .
             - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
