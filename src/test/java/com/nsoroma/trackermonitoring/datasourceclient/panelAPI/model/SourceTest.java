@@ -10,7 +10,19 @@ import static org.junit.Assert.*;
 public class SourceTest {
     @Test
     public void testSlimCustomer() {
-        Configuration configuration = new ConfigurationBuilder().ignoreProperty("clone").iterations(1).build();
+        Configuration configuration = new ConfigurationBuilder().iterations(1).build();
         new BeanTester().testBean(Source.class, configuration);
+
+        Source source = new Source();
+        source.setTariffEndDate("endDate");
+        source.setPhone("phone");
+        source.setBlocked(false);
+
+        Source source1 = new Source();
+        source1.setTariffEndDate(source.getTariffEndDate());
+        source1.setPhone(source.getPhone());
+        source1.setBlocked(source.getBlocked());
+
+        assertEquals(source1.toString(), source.toString());
     }
 }

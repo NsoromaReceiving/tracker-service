@@ -143,7 +143,7 @@ public class Source {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("id", id).append("deviceId", deviceId).append("model", model).append("blocked", blocked).append("tariffId", tariffId).append("phone", phone).append("statusListingId", statusListingId).append("creationDate", creationDate).append("tariffEndDate", tariffEndDate).append("connectionStatus", connectionStatus).toString();
+        return new ToStringBuilder("Source").append("id", id).append("deviceId", deviceId).append("model", model).append("blocked", blocked).append("tariffId", tariffId).append("phone", phone).append("statusListingId", statusListingId).append("creationDate", creationDate).append("tariffEndDate", tariffEndDate).append("connectionStatus", connectionStatus).toString();
     }
 
 }
