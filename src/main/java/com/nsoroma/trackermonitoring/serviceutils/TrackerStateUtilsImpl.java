@@ -45,19 +45,16 @@ public class TrackerStateUtilsImpl implements TrackerStateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
         trackerStates = trackerStates.stream().sorted(Comparator.comparing(TrackerState::getLastGsmUpdate, (date1, date2) -> {
             try {
-                if(date1 != null && date2 != null) {
-                    Date d1 = sdf.parse(date1);
-                    Date d2 = sdf.parse(date2);
-                    if(order.isPresent() && order.get().equals("dsc")) {
-                        return (d1.getTime() > d2.getTime() ? -1 : 1); //descending
-                    } else {
-                        return (d1.getTime() > d2.getTime() ? 1 : -1); //ascending
-                    }
+                Date d1 = sdf.parse(date1);
+                Date d2 = sdf.parse(date2);
+                if(order.isPresent() && order.get().equals("dsc")) {
+                    return (d1.getTime() > d2.getTime() ? -1 : 1); //descending
+                } else {
+                    return (d1.getTime() > d2.getTime() ? 1 : -1); //ascending
                 }
             } catch (ParseException e) {
                 return 0;
             }
-            return 0;
         })).collect(Collectors.toCollection(LinkedHashSet::new));
         return trackerStates;
     }
@@ -67,8 +64,7 @@ public class TrackerStateUtilsImpl implements TrackerStateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
         trackerStates = trackerStates.stream().filter(trackerState -> {
             try {
-                return trackerState.getLastGsmUpdate() != null &&
-                        sdf.parse(trackerState.getLastGsmUpdate()).after(sdf.parse(startDate.get()));
+                return sdf.parse(trackerState.getLastGsmUpdate()).after(sdf.parse(startDate.get()));
             } catch (ParseException e) {
                 return false;
             }
@@ -82,8 +78,7 @@ public class TrackerStateUtilsImpl implements TrackerStateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
         trackerStates = trackerStates.stream().filter(trackerState -> {
             try {
-                return trackerState.getLastGsmUpdate() != null &&
-                        sdf.parse(trackerState.getLastGsmUpdate()).before(sdf.parse(endDate.get()));
+                return sdf.parse(trackerState.getLastGsmUpdate()).before(sdf.parse(endDate.get()));
             } catch (ParseException e) {
                 return false;
             }
