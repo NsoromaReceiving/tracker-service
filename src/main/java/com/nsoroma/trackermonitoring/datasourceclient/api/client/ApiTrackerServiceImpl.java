@@ -29,22 +29,26 @@ public class ApiTrackerServiceImpl implements ApiTrackerService {
     @Override
     public List<TrackerLastState> getTrackerLastState(String hash, List<String> trackerIdList) throws IOException, UnirestException {
 
-        String trackerIds = getTrackerIdsString(trackerIdList);
-
-        String trackerStateUrl = constructTrackerStatesUrl(hash, trackerIds);
-        log.info(trackerStateUrl);
         List<TrackerLastState> trackerLastStates = new ArrayList<>();
 
-        HttpResponse<JsonNode> trackerStateResponse = Unirest.get(trackerStateUrl).header("accept","application/json").asJson();
-        if(trackerStateResponse.getStatus() == 200) {
-            log.info("Unirest Successful");
-            ObjectMapper objectMapper = new ObjectMapper();
-            JSONObject trackerStatesObject = trackerStateResponse.getBody().getObject().getJSONObject("states");
-            for (String trackerId: trackerIdList) {
-                String trackerIdStateString = trackerStatesObject.getJSONObject(trackerId).toString();
-                TrackerLastState trackerLastState = objectMapper.readValue(trackerIdStateString,TrackerLastState.class);
-                trackerLastState.setTrackerId(trackerId);
-                trackerLastStates.add(trackerLastState);
+        if (!trackerIdList.isEmpty()) {
+
+            String trackerIds = getTrackerIdsString(trackerIdList);
+
+            String trackerStateUrl = constructTrackerStatesUrl(hash, trackerIds);
+            log.info(trackerStateUrl);
+
+            HttpResponse<JsonNode> trackerStateResponse = Unirest.get(trackerStateUrl).header("accept", "application/json").asJson();
+            if (trackerStateResponse.getStatus() == 200) {
+                log.info("Unirest Successful");
+                ObjectMapper objectMapper = new ObjectMapper();
+                JSONObject trackerStatesObject = trackerStateResponse.getBody().getObject().getJSONObject("states");
+                for (String trackerId : trackerIdList) {
+                    String trackerIdStateString = trackerStatesObject.getJSONObject(trackerId).toString();
+                    TrackerLastState trackerLastState = objectMapper.readValue(trackerIdStateString, TrackerLastState.class);
+                    trackerLastState.setTrackerId(trackerId);
+                    trackerLastStates.add(trackerLastState);
+                }
             }
         }
         return trackerLastStates;

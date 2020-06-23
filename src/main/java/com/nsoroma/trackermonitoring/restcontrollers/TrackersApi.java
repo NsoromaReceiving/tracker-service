@@ -13,10 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -48,9 +46,7 @@ public interface TrackersApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "success!", response = TrackerState.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "bad input parameter") })
-    @RequestMapping(value = "api/trackers",
-        produces = { "application/json" },
-        method = RequestMethod.GET)
+    @GetMapping(value = "api/trackers", produces = { "application/json" })
     @CrossOrigin
     default ResponseEntity<LinkedHashSet<TrackerState>> trackers(@ApiParam(value = "'pass the start date for data interval' ") @Valid @RequestParam(value = "startDate", required = false) Optional<String> startDate,
                                                                  @ApiParam(value = "'pass the end date for data interval' ") @Valid @RequestParam(value = "endDate", required = false) Optional<String> endDate,

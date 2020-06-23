@@ -1,10 +1,10 @@
 package com.nsoroma.trackermonitoring.restcontrollers;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.services.Trackers;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 
@@ -60,10 +59,11 @@ public class TrackersApiTest {
                 Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertTrue(EqualsBuilder.reflectionEquals(trackerStates, responseEntity.getBody()));
     }
 
     @Test
-    public void returnStatus406WhenAcceptHeaderIsNotPresent() throws IOException, UnirestException {
+    public void returnStatus406WhenAcceptHeaderIsNotPresent() throws IOException {
         httpServletRequest.removeHeader("Accept");
 
         ResponseEntity<LinkedHashSet<TrackerState>> responseEntity =  trackersApi.trackers(Optional.empty(),
@@ -73,7 +73,7 @@ public class TrackersApiTest {
     }
 
     @Test
-    public void returnStatus406WhenAcceptHeaderFormatIsNotApplicationJson() throws IOException, UnirestException {
+    public void returnStatus406WhenAcceptHeaderFormatIsNotApplicationJson() throws IOException {
         httpServletRequest.removeHeader("Accept");
         httpServletRequest.addHeader("Accept", "xml");
 
@@ -88,7 +88,6 @@ public class TrackersApiTest {
         httpServletRequest.removeHeader("Accept");
         httpServletRequest.addHeader("Accept", "application/json");
 
-        LinkedHashSet<TrackerState> trackerStates = new LinkedHashSet<>();
         when(trackers.getTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
                 Optional.empty(), Optional.empty(), Optional.empty())).thenThrow(UnirestException.class);
 

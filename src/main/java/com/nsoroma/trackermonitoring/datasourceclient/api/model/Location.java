@@ -40,7 +40,7 @@ public class Location {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("lat", lat).append("lng", lng).toString();
+        return new ToStringBuilder("Location").append("lat", lat).append("lng", lng).toString();
     }
 
 }

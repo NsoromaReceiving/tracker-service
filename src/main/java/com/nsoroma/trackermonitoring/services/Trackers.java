@@ -1,9 +1,6 @@
 package com.nsoroma.trackermonitoring.services;
 
-
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,6 +15,7 @@ import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Tracker;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 
 import com.nsoroma.trackermonitoring.repository.TrackerStateRepository;
+import com.nsoroma.trackermonitoring.serviceutils.TrackerStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +46,9 @@ public class Trackers {
     @Autowired
     private TrackerStateRepository trackerStateRepository;
 
+    @Autowired
+    private TrackerStateUtils trackerStateUtils;
+
     //serves api/trackers/?param1=&param2=...
     public LinkedHashSet<TrackerState> getTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> customerId,
                                                                      Optional<String> type, Optional<String> order, Optional<String> status) throws IOException, UnirestException {
@@ -60,18 +61,13 @@ public class Trackers {
             List<Tracker> trackerList = getTrackerList(customerId, hash); //gets list of all trackers on server 2 which may belong to a user
             List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customerId.get(),trackerList,hash); //list od last tracker state for customer
             Customer customer = getCustomer(hash, customerId.get()); // get customer details
-            List<Tracker> customerTrackers = trackerList.parallelStream().filter(tracker ->
-                    tracker.getUserId().toString().equals(customer.getId().toString())).collect(Collectors.toList()); //filters for trackers that belong to this customer ID
 
-            if (!customerTrackerLastStateList.isEmpty()) {
-                for (TrackerLastState trackerLastState: customerTrackerLastStateList) {
-                    TrackerState trackerState = new TrackerState();
-                    trackerStates.add(trackerStateData(trackerState,customerTrackers,trackerLastState,customer)); // sets the trackerState data and adds to List
-                }
+            for (TrackerLastState trackerLastState: customerTrackerLastStateList) {
+                TrackerState trackerState = new TrackerState();
+                trackerStates.add(trackerStateData(trackerState, trackerList, trackerLastState, customer)); // sets the trackerState data and adds to List
             }
         } else {
             trackerStates.addAll(trackerStateRepository.findAll());
-
         }
 
         return new LinkedHashSet<>(filterTrackers(startDate, endDate, type,order, trackerStates, status));
@@ -88,12 +84,10 @@ public class Trackers {
 
         for(Customer customer: customerList) {
             List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customer.getId().toString(), trackerList, hash);
-            List<Tracker> customerTrackers = trackerList.parallelStream().filter(tracker -> tracker.getUserId().toString().equals(customer.getId().toString())).collect(Collectors.toList());
-            if (!customerTrackerLastStateList.isEmpty()) {
-                for (TrackerLastState trackerLastState : customerTrackerLastStateList) {
-                    TrackerState trackerState = new TrackerState();
-                    trackerStates.add(trackerStateData(trackerState, customerTrackers, trackerLastState, customer));
-                }
+
+            for (TrackerLastState trackerLastState : customerTrackerLastStateList) {
+                TrackerState trackerState = new TrackerState();
+                trackerStates.add(trackerStateData(trackerState, trackerList, trackerLastState, customer));
             }
         }
 
@@ -130,43 +124,21 @@ public class Trackers {
     }
 
 
-
-
-    /********helper functions ********/
-
-
     //filters list  of trackerStates
     protected LinkedHashSet<TrackerState> filterTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> type,
                                                          Optional<String> order, Set<TrackerState> trackerStates, Optional<String> status) {
 
-        //new code start date
         String datePattern = "yyyy-MM-dd HH:mm:ss";
-        if(startDate.isPresent()) {
-            log.info("Start Date : {}.", startDate.get());
-            SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
-            trackerStates = trackerStates.stream().filter(trackerState -> {
-                try {
-                    return trackerState.getLastGpsUpdate() != null &&
-                            sdf.parse(trackerState.getLastGpsUpdate()).after(sdf.parse(startDate.get()));
-                } catch (ParseException e) {
-                    return false;
-                }
 
-            }).collect(Collectors.toSet());
+        if(startDate.isPresent()) {
+            log.info("Trimming by start date");
+            trackerStates = trackerStateUtils.trimTrackerStatesByStartDate(startDate, trackerStates, datePattern);
         }
 
         //new code end date
         if(endDate.isPresent()) {
-            log.info("End Date : {}.", endDate.get());
-            SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
-            trackerStates = trackerStates.stream().filter(trackerState -> {
-                try {
-                    return trackerState.getLastGpsUpdate() != null &&
-                            sdf.parse(trackerState.getLastGpsUpdate()).before(sdf.parse(endDate.get()));
-                } catch (ParseException e) {
-                    return false;
-                }
-            }).collect(Collectors.toSet());
+            log.info("Trimming by end date");
+            trackerStates = trackerStateUtils.trimTrackerStatesByEndDate(endDate, trackerStates, datePattern);
         }
 
         // filter type
@@ -183,25 +155,10 @@ public class Trackers {
 
         //filter order
         if (order.isPresent()) {
-            log.info("Arrangement Order : {}.", order.get());
-            SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
-            trackerStates = trackerStates.stream().sorted(Comparator.comparing(TrackerState::getLastGpsUpdate, (date1, date2) -> {
-                try {
-                    if(date1 != null && date2 != null) {
-                        Date d1 = sdf.parse(date1);
-                        Date d2 = sdf.parse(date2);
-                        if(order.get().equals("dsc")) {
-                            return (d1.getTime() > d2.getTime() ? -1 : 1); //descending
-                        } else {
-                            return (d1.getTime() > d2.getTime() ? 1 : -1); //ascending
-                        }
-                    }
-                } catch (ParseException e) {
-                    return 0;
-                }
-                return 0;
-            })).collect(Collectors.toCollection(LinkedHashSet::new));
+            log.info("Sorting by order: {}", order.get());
+            trackerStates = trackerStateUtils.sortTrackerStatesByOrder(order, trackerStates, datePattern);
         }
+
         return new LinkedHashSet<>(trackerStates);
     }
 
@@ -224,25 +181,18 @@ public class Trackers {
     protected List<TrackerLastState> getTrackerStateList(String customerId, List<Tracker> trackers, String hash) throws IOException, UnirestException {
         String customerHash = customerService.getCustomerHash(hash, customerId);
         List<String> trackerIds = getCustomerTrackerIdList(trackers, customerId);
-        List<TrackerLastState> trackerLastStateList = new ArrayList<>();
-        if(!trackerIds.isEmpty()) {
-            trackerLastStateList = apiTrackerService.getTrackerLastState(customerHash, trackerIds);
-        }
-        return trackerLastStateList;
+        return apiTrackerService.getTrackerLastState(customerHash, trackerIds);
     }
 
     //Bundles all trackerId for a particular customer into a list
     private List<String> getCustomerTrackerIdList(List<Tracker> trackers, String customerId) {
-        List<Tracker> customerTrackers = trackers.stream().filter(tracker -> tracker.getUserId().toString().equals(customerId)).collect(Collectors.toList());
+        List<Tracker> customerTrackers = trackers.stream().filter(tracker -> tracker.getUserId().toString().equals(customerId) && !tracker.getDeleted() && !tracker.getSource().getBlocked()).collect(Collectors.toList()); //note that IDs of deleted/hidden trackers are still returned hence their state cannot be retrieved
         List<String> customerTrackerIds = new ArrayList<>();
         for(Tracker customerTracker: customerTrackers) {
-            if(!customerTracker.getDeleted() && !customerTracker.getSource().getBlocked()) { //note that IDs of deleted/hidden trackers are still returned hence their state cannot be retrieved
-                customerTrackerIds.add(customerTracker.getId().toString());
-            }
+            customerTrackerIds.add(customerTracker.getId().toString());
         }
         return customerTrackerIds;
     }
-
 
     //Sets TrackerState Object values
     private TrackerState setTrackerStateData(Tracker tracker, TrackerLastState trackerLastState, TrackerState trackerState, String hash) throws IOException, UnirestException {
@@ -263,12 +213,9 @@ public class Trackers {
 
         if(trackerLastState != null) {
             setGpsGsmValues(trackerState, trackerLastState);
-
         }
-
         return trackerState;
     }
-
 
     private TrackerState trackerStateData(TrackerState trackerState, List<Tracker> customerTrackers, TrackerLastState trackerLastState, Customer customer) {
         List<Tracker> trackerList1 = customerTrackers.parallelStream().filter(tracker1 -> tracker1.getId().toString().equals(trackerLastState.getTrackerId())).collect(Collectors.toList());
@@ -289,28 +236,13 @@ public class Trackers {
         return trackerState;
     }
 
+    //setting data from gps and gsm
     private void setGpsGsmValues(TrackerState trackerState, TrackerLastState trackerLastState) {
         if (trackerLastState.getGps() != null) {
-            if (trackerLastState.getGps().getUpdated() != null) {
-                trackerState.setLastGpsUpdate(trackerLastState.getGps().getUpdated());
-            }
-            if (trackerLastState.getGps().getSignalLevel() != null) {
-                trackerState.setLastGpsSignalLevel(trackerLastState.getGps().getSignalLevel().toString());
-            }
-            if (trackerLastState.getGps().getLocation().getLat() != null) {
-                trackerState.setLastGpsLatitude(trackerLastState.getGps().getLocation().getLat().toString());
-            }
-            if (trackerLastState.getGps().getLocation().getLng() != null) {
-                trackerState.setLastGpsLongitude(trackerLastState.getGps().getLocation().getLng().toString());
-            }
+            trackerStateUtils.checkAndSetGpsData(trackerState, trackerLastState);
         }
         if (trackerLastState.getGsm() != null) {
-            if (trackerLastState.getGsm().getSignalLevel() != null) {
-                trackerState.setGsmSignalLevel(trackerLastState.getGsm().getSignalLevel().toString());
-            }
-            if (trackerLastState.getGsm().getNetworkName() != null) {
-                trackerState.setGsmNetworkName(trackerLastState.getGsm().getNetworkName());
-            }
+            trackerStateUtils.checkAndSetGsmData(trackerState, trackerLastState);
         }
         if (trackerLastState.getBatteryLevel() != null) {
             trackerState.setLastBatteryLevel(trackerLastState.getBatteryLevel().toString());
@@ -319,6 +251,7 @@ public class Trackers {
     }
 
 
+    //setters for autowired properties
     public void setDealerAuthClient(PanelApiAuthentication dealerAuthClient) {
         this.dealerAuthClient = dealerAuthClient;
     }
@@ -339,5 +272,7 @@ public class Trackers {
         this.trackerStateRepository = trackerStateRepository;
     }
 
-
+    public void setTrackerStateUtils(TrackerStateUtils trackerStateUtils) {
+        this.trackerStateUtils = trackerStateUtils;
+    }
 }

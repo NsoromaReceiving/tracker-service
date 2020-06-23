@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -41,9 +42,7 @@ public interface CustomerApi {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success! customer list"),
             @ApiResponse(code = 406, message = "Not Acceptable") })
-    @RequestMapping(value = "/api/customers",
-            consumes = { "application/json" },
-            method = RequestMethod.GET)
+    @GetMapping(value = "/api/customers", consumes = { "application/json" })
     @CrossOrigin
     default ResponseEntity<List<SlimCustomer>> Customers() {
         try {

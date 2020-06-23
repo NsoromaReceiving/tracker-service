@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.services.Trackers;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +56,7 @@ public class TrackerApiTest {
         ResponseEntity<TrackerState> responseEntity =  trackerApi.trackerID(trackerId);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertTrue(EqualsBuilder.reflectionEquals(trackerState, responseEntity.getBody()));
     }
 
     @Test
@@ -102,6 +104,7 @@ public class TrackerApiTest {
         ResponseEntity<TrackerState> responseEntity =  trackerApi.trackerByImei(trackerImei);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertTrue(EqualsBuilder.reflectionEquals(trackerState, responseEntity.getBody()));
     }
 
     @Test
