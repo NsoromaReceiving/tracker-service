@@ -68,7 +68,7 @@ public class Gsm {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("updated", updated).append("signalLevel", signalLevel).append("networkName", networkName).append("roaming", roaming).toString();
+        return new ToStringBuilder("GSM").append("updated", updated).append("signalLevel", signalLevel).append("networkName", networkName).append("roaming", roaming).toString();
     }
 
 }
