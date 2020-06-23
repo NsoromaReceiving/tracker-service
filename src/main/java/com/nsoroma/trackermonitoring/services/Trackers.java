@@ -61,12 +61,10 @@ public class Trackers {
             List<Tracker> trackerList = getTrackerList(customerId, hash); //gets list of all trackers on server 2 which may belong to a user
             List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customerId.get(),trackerList,hash); //list od last tracker state for customer
             Customer customer = getCustomer(hash, customerId.get()); // get customer details
-            List<Tracker> customerTrackers = trackerList.parallelStream().filter(tracker ->
-                    tracker.getUserId().toString().equals(customer.getId().toString())).collect(Collectors.toList()); //filters for trackers that belong to this customer ID
 
             for (TrackerLastState trackerLastState: customerTrackerLastStateList) {
                 TrackerState trackerState = new TrackerState();
-                trackerStates.add(trackerStateData(trackerState, customerTrackers, trackerLastState, customer)); // sets the trackerState data and adds to List
+                trackerStates.add(trackerStateData(trackerState, trackerList, trackerLastState, customer)); // sets the trackerState data and adds to List
             }
         } else {
             trackerStates.addAll(trackerStateRepository.findAll());
@@ -86,11 +84,10 @@ public class Trackers {
 
         for(Customer customer: customerList) {
             List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customer.getId().toString(), trackerList, hash);
-            List<Tracker> customerTrackers = trackerList.parallelStream().filter(tracker -> tracker.getUserId().toString().equals(customer.getId().toString())).collect(Collectors.toList());
 
             for (TrackerLastState trackerLastState : customerTrackerLastStateList) {
                 TrackerState trackerState = new TrackerState();
-                trackerStates.add(trackerStateData(trackerState, customerTrackers, trackerLastState, customer));
+                trackerStates.add(trackerStateData(trackerState, trackerList, trackerLastState, customer));
             }
         }
 
