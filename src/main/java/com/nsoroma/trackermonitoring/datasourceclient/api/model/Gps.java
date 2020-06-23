@@ -94,7 +94,7 @@ public class Gps {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("updated", updated).append("signalLevel", signalLevel).append("location", location).append("heading", heading).append("speed", speed).append("alt", alt).toString();
+        return new ToStringBuilder("GPS").append("updated", updated).append("signalLevel", signalLevel).append("location", location).append("heading", heading).append("speed", speed).append("alt", alt).toString();
     }
 
 }
