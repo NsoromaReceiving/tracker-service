@@ -64,7 +64,7 @@ public class TrackerStateUtilsImpl implements TrackerStateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
         trackerStates = trackerStates.stream().filter(trackerState -> {
             try {
-                return sdf.parse(trackerState.getLastGsmUpdate()).after(sdf.parse(startDate.get()));
+                return trackerState.getLastGsmUpdate() != null && sdf.parse(trackerState.getLastGsmUpdate()).after(sdf.parse(startDate.get()));
             } catch (ParseException e) {
                 return false;
             }
@@ -78,7 +78,7 @@ public class TrackerStateUtilsImpl implements TrackerStateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat(datePattern);
         trackerStates = trackerStates.stream().filter(trackerState -> {
             try {
-                return sdf.parse(trackerState.getLastGsmUpdate()).before(sdf.parse(endDate.get()));
+                return trackerState.getLastGsmUpdate() != null && sdf.parse(trackerState.getLastGsmUpdate()).before(sdf.parse(endDate.get()));
             } catch (ParseException e) {
                 return false;
             }
