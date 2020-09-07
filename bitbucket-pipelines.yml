@@ -54,7 +54,7 @@ pipelines:
 
             - docker build -t $IMAGE_NAME .
             - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
-            - docker push $IMAG
+            - docker push $IMAGE
 
 definitions:
   services:
