@@ -36,7 +36,8 @@ public class CustomersImpl implements Customers {
     public List<SlimCustomer> getCustomers() throws IOException, UnirestException, DataSourceClientResponseException {
         String hash = apiAuthentication.getDealerHash();
         List<Customer> server1Customers = apiCustomerService.getCustomers(hash);
-        List<Unit> unitList = unitManager.getUnits();
+        ArrayList<String> uids = unitManager.getUnitsStringChunks();
+        List<Unit> unitList = unitManager.getUnits(uids);
         List<SlimCustomer> slimCustomers = new ArrayList<>();
         for(Customer customer: server1Customers) {
             SlimCustomer slimCustomer = new SlimCustomer();
@@ -49,8 +50,8 @@ public class CustomersImpl implements Customers {
 
         for (Unit unit: unitList) {
             SlimCustomer slimCustomer = new SlimCustomer();
-            slimCustomer.setCustomerId(unit.getGroupName());
-            slimCustomer.setCustomerName(unit.getGroupName());
+            slimCustomer.setCustomerId(unit.getCompany());
+            slimCustomer.setCustomerName(unit.getCompany());
             if(slimCustomers.parallelStream().noneMatch(slimCustomer1 -> slimCustomer1.getCustomerName().equals(slimCustomer.getCustomerName()))){
                 slimCustomers.add(slimCustomer);
             }

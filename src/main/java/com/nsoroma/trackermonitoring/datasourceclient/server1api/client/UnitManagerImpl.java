@@ -4,17 +4,21 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.Unit;
-import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.UserSession;
-import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.WebServiceResultWrapper;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.*;
 import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
+import com.nsoroma.trackermonitoring.services.Trackers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class UnitManagerImpl implements UnitManager {
@@ -25,14 +29,88 @@ public class UnitManagerImpl implements UnitManager {
     @Autowired
     private ApiAuthentication apiAuthentication;
 
+    private Logger log = LoggerFactory.getLogger(UnitManagerImpl.class);
+
     @Override
-    public List<Unit> getUnits() throws DataSourceClientResponseException, UnirestException, IOException {
+    public List<Unit> getUnits(ArrayList<String> uids) throws DataSourceClientResponseException, UnirestException, IOException {
+
+        UserSession userSession = apiAuthentication.getUserSession();
+        ArrayList<Unit> units = new ArrayList<>();
+
+        int counter = 0;
+        for (String ids: uids) {
+            counter += 1;
+            String unitsUrl = host + "management/DistributorManager.asmx/UnitList?UserIdGuid="+ userSession.getUserIdGuid() +"&SessionId="+ userSession.getSessionId() +
+                    "&Units="+ids+"&OptionsJSON=";
+            String unitListXml = null;
+
+
+            HttpResponse<String> response = Unirest.get(unitsUrl).asString();
+            if (response.getStatus() == 200) {
+                unitListXml = response.getBody();
+                XmlMapper xmlMapper = new XmlMapper();
+                WebServiceResultWrapper webServiceResultWrapper = xmlMapper.readValue(unitListXml, WebServiceResultWrapper.class);
+                if (webServiceResultWrapper != null && webServiceResultWrapper.getWebServiceContent().getData().getUnits() != null) {
+                    units.addAll(webServiceResultWrapper.getWebServiceContent().getData().getUnits());
+                }
+            } else {
+                throw new DataSourceClientResponseException(Class.class.getName(), unitsUrl, response.getStatus());
+            }
+            log.info("get units");
+            log.info(String.valueOf(counter));
+        }
+
+        log.info(String.valueOf(units));
+        return units;
+    }
+
+    @Override
+    public List<LatestLocation> getLatestLocation(ArrayList<String> uids) throws UnirestException, IOException, DataSourceClientResponseException {
+        UserSession userSession = apiAuthentication.getUserSession();
+
+        String latestLocationXml = null;
+        ArrayList<LatestLocation> latestLocations = new ArrayList<>();
+
+        int counter = 0;
+        for (String ids: uids) {
+            counter += 1;
+            log.info("checking the legnth of uid for location stuff");
+            log.info(String.valueOf(uids.size()));
+            String latestLocation = host + "management/DistributorManager.asmx/UnitLatestLocations?UserIdGuid="+ userSession.getUserIdGuid() +"&SessionId="+ userSession.getSessionId() +"&LastDateReceivedUtc="+
+                    "&Units="+ids+"&OptionsJSON=D";
+            log.info(latestLocation);
+            HttpResponse<String> response = Unirest.get(latestLocation).asString();
+            if (response.getStatus() == 200) {
+                latestLocationXml = response.getBody();
+                XmlMapper xmlMapper = new XmlMapper();
+                WebServiceResultWrapper latestLocationListWrapper = xmlMapper.readValue(latestLocationXml, WebServiceResultWrapper.class);
+                if (latestLocationListWrapper != null && latestLocationListWrapper.getWebServiceContent().getData().getLatestLocations() != null) {
+                    log.info("locationsss");
+                    List<LatestLocation> latestLocations1 =  latestLocationListWrapper.getWebServiceContent().getData().getLatestLocations();
+                    log.info(String.valueOf(latestLocations1.size()));
+                    latestLocations.addAll(latestLocations1);
+                    log.info("getting location");
+                    log.info(String.valueOf(counter));
+                }
+            } else {
+                throw new DataSourceClientResponseException(Class.class.getName(), latestLocation, response.getStatus());
+            }
+
+        }
+        log.info(String.valueOf(latestLocations.size()));
+        return latestLocations;
+    }
+
+
+    @Override
+    public ArrayList<String> getUnitsStringChunks() throws DataSourceClientResponseException, UnirestException, IOException {
 
         UserSession userSession = apiAuthentication.getUserSession();
 
         String authUrl = host + "management/UnitManager.asmx/UnitCustomDetails?UserIdGuid="+ userSession.getUserIdGuid() +"&SessionId="+ userSession.getSessionId();
         String unitListXml = null;
-        List<Unit> units = Collections.emptyList();
+
+        ArrayList<String> unitsStringList = new ArrayList<>();
 
         HttpResponse<String> response = Unirest.get(authUrl).asString();
         if (response.getStatus() == 200) {
@@ -40,12 +118,33 @@ public class UnitManagerImpl implements UnitManager {
             XmlMapper xmlMapper = new XmlMapper();
             WebServiceResultWrapper webServiceResultWrapper = xmlMapper.readValue(unitListXml, WebServiceResultWrapper.class);
             if (webServiceResultWrapper != null && webServiceResultWrapper.getWebServiceContent().getData().getUnits() != null) {
-                units = webServiceResultWrapper.getWebServiceContent().getData().getUnits();
+                List<Unit> unitList = webServiceResultWrapper.getWebServiceContent().getData().getUnits();
+
+                ArrayList<String> uidList = (ArrayList<String>) unitList.stream().map(Unit::getImei).collect(Collectors.toList()).parallelStream().filter(Objects::nonNull).collect(Collectors.toList());
+                uidList.removeAll(Collections.singleton(""));
+                int stringLength = uidList.size();
+                int start = 0;
+                int sizeCovered = 0;
+
+                while(start < stringLength) {
+                    int end = Math.min(start + 100, uidList.size());
+
+                    List<String> subStringList = uidList.subList(sizeCovered, end);
+                    sizeCovered += subStringList.size();
+                    String unitsString = String.join(",", subStringList);
+                    unitsStringList.add(unitsString);
+                    start += 100;
+                    System.out.println(unitsString);
+                }
+                log.info(String.valueOf(uidList));
+
             }
         } else {
             throw new DataSourceClientResponseException(Class.class.getName(), authUrl, response.getStatus());
         }
-        return units;
+
+        log.info(String.valueOf(unitsStringList));
+        return unitsStringList;
     }
 
     public void setHost(String host) {

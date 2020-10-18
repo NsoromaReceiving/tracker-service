@@ -30,4 +30,16 @@ public class Unit implements Serializable {
     @JsonProperty("GroupName")
     private String groupName;
 
+    @JsonProperty("Uid")
+    private String uid;
+
+    @JsonProperty("PhoneNumber")
+    private  String phoneNumber;
+
+    @JsonProperty("CompanyName")
+    private String company;
+
+    @JsonProperty("UnitType")
+    private String unitType;
+
 }

@@ -94,7 +94,7 @@ public class Trackers {
 
     //get all trackers' states
     public LinkedHashSet<TrackerState> getServerTwoTrackerStates() throws IOException, UnirestException {
-        log.info("getAllTrackerStates Called");
+        log.info("getting all server twp TrackerStates Called");
         String hash = dealerAuthClient.getDealerHash();
         List<Tracker> trackerList = getTrackerList(Optional.empty(), hash); //gets list of all trackers on server 2 which may belong to a user
         List<Customer> customerList = getCustomerList(hash);
@@ -111,6 +111,7 @@ public class Trackers {
             }
         }
 
+        log.info(String.valueOf(trackerStates.size()));
         return new LinkedHashSet<>(trackerStates);
     }
 
@@ -118,13 +119,18 @@ public class Trackers {
     //get server1 Tracker state
     public LinkedHashSet<TrackerState> getServerOneTrackerStates() throws DataSourceClientResponseException, UnirestException, IOException {
         Set<TrackerState> trackerStates = new HashSet<>(Collections.emptySet());
-        List<Unit> unitList = unitManager.getUnits();
-        List<LatestLocation> latestLocationList = locationManager.getLatestLocation();
+        ArrayList<String> uids = unitManager.getUnitsStringChunks();
+        List<Unit> unitList = unitManager.getUnits(uids);
+        log.info(String.valueOf(unitList.size()));
+        List<LatestLocation> latestLocationList = unitManager.getLatestLocation(uids);
+        log.info(String.valueOf(latestLocationList.size()));
         for(Unit unit: unitList) {
             if(!unit.getImei().equals("")) {
                LatestLocation latestLocation = latestLocationList.parallelStream().filter(latestLocation1 -> unit.getImei().equals(latestLocation1.getImei())).findFirst().orElse(null);
                 if (latestLocation != null) {
                     trackerStates.add(setServer1TrackerStateData(latestLocation, unit));
+                }else {
+                    trackerStates.add(setServer1TrackerStateDataWithoutLocationDetails(unit));
                 }
             }
         }
@@ -133,7 +139,6 @@ public class Trackers {
 
     //get tracker by Id in server two
     public TrackerState getServerTwoTracker(String id) throws IOException, UnirestException {
-        log.info("getTracker called");
         TrackerState trackerState = new TrackerState();
         String hash = dealerAuthClient.getDealerHash();
         Tracker tracker = panelTrackersService.getTracker(hash, id);
@@ -141,7 +146,6 @@ public class Trackers {
         ArrayList<String> trackerIdList = new ArrayList<>();
         trackerIdList.add(id);
         TrackerLastState trackerLastState = apiTrackerService.getTrackerLastState(customerHash,trackerIdList).get(0);
-
         return setTrackerStateData(tracker,trackerLastState,trackerState,hash);
     }
 
@@ -176,6 +180,8 @@ public class Trackers {
                                                          Optional<String> order, Set<TrackerState> trackerStates, Optional<String> status, Optional<String> server, Optional<String> customerId) {
         if (customerId.isPresent()) {
             log.info("CustomerId : {}", customerId.get());
+            trackerStates = trackerStates.parallelStream().filter(Objects::nonNull).filter(trackerState -> Optional.ofNullable(trackerState.getCustomerId())
+                    .filter(n -> !n.isEmpty()).isPresent()).collect(Collectors.toSet());
             trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getCustomerId().equals(customerId.get())).collect(Collectors.toSet());
         }
 
@@ -217,6 +223,8 @@ public class Trackers {
         // filter type
         if (type.isPresent()){
             log.info("Type : {}.", type.get());
+            trackerStates = trackerStates.parallelStream().filter(Objects::nonNull).filter(trackerState -> Optional.ofNullable(trackerState.getModel())
+                    .filter(n -> !n.isEmpty()).isPresent()).collect(Collectors.toSet());
             trackerStates = trackerStates.stream().filter(trackerState -> trackerState.getModel().equals(type.get())).collect(Collectors.toSet());
         }
 
@@ -369,15 +377,16 @@ public class Trackers {
     private TrackerState setServer1TrackerStateData(LatestLocation latestLocation, Unit unit) throws IOException, UnirestException, DataSourceClientResponseException {
            TrackerState trackerState = new TrackerState();
            trackerState.setServer("1");
-           trackerState.setTrackerId(latestLocation.getImei());
-           trackerState.setImei(latestLocation.getImei());
-           trackerState.setLabel(latestLocation.getName());
+           trackerState.setTrackerId(unit.getUid());
+           trackerState.setImei(unit.getImei());
+           trackerState.setLabel(unit.getName());
            trackerState.setLastGpsUpdate(latestLocation.getDateTime().replace("T", " "));
            trackerState.setLastGpsLongitude(latestLocation.getLongitude());
            trackerState.setLastGpsLatitude(latestLocation.getLatitude());
-           trackerState.setCustomerName(unit.getGroupName());
-           trackerState.setCustomerId(unit.getGroupName());
-           trackerState.setModel("");
+           trackerState.setCustomerName(unit.getCompany());
+           trackerState.setCustomerId(unit.getCompany());
+           trackerState.setPhoneNumber(unit.getPhoneNumber());
+           trackerState.setModel(unit.getUnitType());
            if (unit.getStatus().equals("Active")) {
                trackerState.setConnectionStatus("active");
            } else {
@@ -385,6 +394,27 @@ public class Trackers {
            }
 
            return trackerState;
+
+    }
+
+    private TrackerState setServer1TrackerStateDataWithoutLocationDetails(Unit unit) throws IOException, UnirestException, DataSourceClientResponseException {
+        TrackerState trackerState = new TrackerState();
+        trackerState.setServer("1");
+        trackerState.setTrackerId(unit.getUid());
+        trackerState.setImei(unit.getImei());
+        trackerState.setLabel(unit.getName());
+        trackerState.setCustomerName(unit.getCompany());
+        trackerState.setCustomerId(unit.getCompany());
+        trackerState.setCustomerId(unit.getGroupName());
+        trackerState.setPhoneNumber(unit.getPhoneNumber());
+        trackerState.setModel(unit.getUnitType());
+        if (unit.getStatus().equals("Active")) {
+            trackerState.setConnectionStatus("active");
+        } else {
+            trackerState.setConnectionStatus("offline");
+        }
+
+        return trackerState;
 
     }
 

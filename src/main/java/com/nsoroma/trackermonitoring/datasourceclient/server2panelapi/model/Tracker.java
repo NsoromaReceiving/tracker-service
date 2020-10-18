@@ -1,5 +1,6 @@
 package com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
         "model_name",
         "clone"
 })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Tracker {
 
     @JsonProperty("id")
