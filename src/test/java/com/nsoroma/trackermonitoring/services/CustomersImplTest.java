@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -57,11 +58,14 @@ public class CustomersImplTest {
         List<Customer> customersList = new ArrayList<>();
         customersList.add(customer);
 
+        ArrayList<String> uidStrings = new ArrayList<>();
+        uidStrings.add("1234567789");
+
         List<Unit> unitList = new ArrayList<>();
         unitList.add(unit);
         when(panelApiAuthentication.getDealerHash()).thenReturn("dealerHash");
         when(panelApiCustomerService.getCustomers("dealerHash")).thenReturn(customersList);
-        when(unitManager.getUnits()).thenReturn(unitList);
+        when(unitManager.getUnits(uidStrings)).thenReturn(unitList);
         List<SlimCustomer> slimCustomerList = customers.getCustomers();
         assertThat(slimCustomerList.size(), is(2));
     }

@@ -56,7 +56,7 @@ public class LocationManagerImplTest {
     @Test
     public void getLatestLocation() throws DataSourceClientResponseException, UnirestException, IOException {
         String xml = "<ArrayOfLocation xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://webservices.3dtracking.net\">\n" +
-                "    <Location2>\n" +
+                "    <Location>\n" +
                 "        <LicensePlate />\n" +
                 "        <Name>GC 6846-12</Name>\n" +
                 "        <IMEI>3565434851847</IMEI>\n" +
@@ -90,7 +90,7 @@ public class LocationManagerImplTest {
                 "                <auxiliary systemname=\"excessivedeceleration\" systemdescription=\"Excessive Decceleration\" mappingdescription=\"\" active=\"False\" />\n" +
                 "            </auxiliaries>\n" +
                 "        </Auxs>\n" +
-                "    </Location2>" +
+                "    </Location>" +
                 "</ArrayOfLocation>";
 
         UserSession userSession = new UserSession();

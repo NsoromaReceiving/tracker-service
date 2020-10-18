@@ -149,7 +149,10 @@ public class TrackersTest {
         List<LatestLocation> latestLocationList = new ArrayList<>();
         latestLocationList.add(serverOneLatestLocation);
 
-        when(unitManager.getUnits()).thenReturn(unitList);
+        ArrayList<String> uidStrings = new ArrayList<>();
+        uidStrings.add(serverOneUnit1.getImei());
+
+        when(unitManager.getUnits(uidStrings)).thenReturn(unitList);
         when(locationManager.getLatestLocation()).thenReturn(latestLocationList);
 
         LinkedHashSet<TrackerState> trackerStateLinkedHashSet = trackers.getServerOneTrackerStates();
@@ -169,7 +172,9 @@ public class TrackersTest {
         List<LatestLocation> latestLocationList = new ArrayList<>();
         latestLocationList.add(serverOneLatestLocation);
 
-        when(unitManager.getUnits()).thenReturn(unitList);
+        ArrayList<String> uidStrings = (ArrayList<String>) Collections.singletonList(serverOneUnit1.getImei());
+
+        when(unitManager.getUnits(uidStrings)).thenReturn(unitList);
         when(locationManager.getLatestLocation()).thenReturn(latestLocationList);
 
         LinkedHashSet<TrackerState> trackerStateLinkedHashSet = trackers.getServerOneTrackerStates();

@@ -17,6 +17,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -66,6 +68,10 @@ public class UnitManagerImplTest {
                 "                    <Name> box.5255</Name>\n" +
                 "                    <IMEI>3574640355454255</IMEI>\n" +
                 "                    <Status>Inactive</Status>\n" +
+                "                    <Uid>Inactive</Uid>\n" +
+                "                    <CompanyName>Inactive</CompanyName>\n" +
+                "                    <UnitType>Inactive</UnitType>\n" +
+                "                    <PhoneNumber>Inactive</PhoneNumber>\n" +
                 "                </Unit>" +
                 "             </ArrayOfUnit> " +
                 "          </data>" +
@@ -76,13 +82,16 @@ public class UnitManagerImplTest {
         userSession.setSessionId("someSessionId");
         userSession.setUserIdGuid("somerUserId");
 
+        ArrayList<String> uidStrings = new ArrayList<>();
+        uidStrings.add("3574640355454255");
+
         when(apiAuthentication.getUserSession()).thenReturn(userSession);
         when(httpResponse.getStatus()).thenReturn(200);
         when(httpResponse.getBody()).thenReturn(xml);
         when(getRequest.asString()).thenReturn(httpResponse);
-        when(Unirest.get(HORCRUX + "management/UnitManager.asmx/UnitCustomDetails?UserIdGuid="+ userSession.getUserIdGuid() +"&SessionId="+ userSession.getSessionId())).thenReturn(getRequest);
+        when(Unirest.get(HORCRUX + "management/DistributorManager.asmx/UnitList?UserIdGuid="+ userSession.getUserIdGuid() +"&SessionId="+ userSession.getSessionId()+"&Units="+uidStrings.get(0)+"&OptionsJSON=")).thenReturn(getRequest);
 
-        List<Unit> latestLocationList = unitManager.getUnits();
+        List<Unit> latestLocationList = unitManager.getUnits(uidStrings);
         assertThat(latestLocationList.size(), is(1));
         assertThat(latestLocationList, contains(hasProperty("imei", is("3574640355454255"))));
     }
