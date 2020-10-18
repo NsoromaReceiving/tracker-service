@@ -172,7 +172,8 @@ public class TrackersTest {
         List<LatestLocation> latestLocationList = new ArrayList<>();
         latestLocationList.add(serverOneLatestLocation);
 
-        ArrayList<String> uidStrings = (ArrayList<String>) Collections.singletonList(serverOneUnit1.getImei());
+        ArrayList<String> uidStrings = new ArrayList<>();
+        uidStrings.add(serverOneUnit1.getImei());
 
         when(unitManager.getUnits(uidStrings)).thenReturn(unitList);
         when(locationManager.getLatestLocation()).thenReturn(latestLocationList);
@@ -713,6 +714,10 @@ public class TrackersTest {
         serverOneUnit.setImei("109193090130");
         serverOneUnit.setStatus("Active");
         serverOneUnit.setGroupName("Unassigned");
+        serverOneUnit.setCompany("someCompany");
+        serverOneUnit.setPhoneNumber("somePhoneNumber");
+        serverOneUnit.setUid("someUid");
+        serverOneUnit.setUnitType("someUnitType");
         return serverOneUnit;
     }
 

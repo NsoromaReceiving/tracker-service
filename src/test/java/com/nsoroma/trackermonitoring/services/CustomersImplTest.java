@@ -54,6 +54,7 @@ public class CustomersImplTest {
         Unit unit = new Unit();
         unit.setImei("1234567789");
         unit.setGroupName("Unassigned");
+        unit.setCompany("someCompany");
 
         List<Customer> customersList = new ArrayList<>();
         customersList.add(customer);
