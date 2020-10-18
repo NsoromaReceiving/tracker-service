@@ -66,6 +66,7 @@ public class CustomersImplTest {
         unitList.add(unit);
         when(panelApiAuthentication.getDealerHash()).thenReturn("dealerHash");
         when(panelApiCustomerService.getCustomers("dealerHash")).thenReturn(customersList);
+        when(unitManager.getUnitsStringChunks()).thenReturn(uidStrings);
         when(unitManager.getUnits(uidStrings)).thenReturn(unitList);
         List<SlimCustomer> slimCustomerList = customers.getCustomers();
         assertThat(slimCustomerList.size(), is(2));

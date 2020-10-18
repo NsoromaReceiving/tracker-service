@@ -153,11 +153,12 @@ public class TrackersTest {
         uidStrings.add(serverOneUnit1.getImei());
 
         when(unitManager.getUnits(uidStrings)).thenReturn(unitList);
-        when(locationManager.getLatestLocation()).thenReturn(latestLocationList);
+        when(unitManager.getLatestLocation(uidStrings)).thenReturn(latestLocationList);
+        when(unitManager.getUnitsStringChunks()).thenReturn(uidStrings);
 
         LinkedHashSet<TrackerState> trackerStateLinkedHashSet = trackers.getServerOneTrackerStates();
         assertThat(trackerStateLinkedHashSet.size(), is(1));
-        assertThat(trackerStateLinkedHashSet, contains(hasProperty("trackerId", is(serverOneUnit1.getImei()))));
+        assertThat(trackerStateLinkedHashSet, contains(hasProperty("trackerId", is(serverOneUnit1.getUid()))));
     }
 
     @Test
@@ -176,6 +177,7 @@ public class TrackersTest {
         uidStrings.add(serverOneUnit1.getImei());
 
         when(unitManager.getUnits(uidStrings)).thenReturn(unitList);
+        when(unitManager.getUnitsStringChunks()).thenReturn(uidStrings);
         when(locationManager.getLatestLocation()).thenReturn(latestLocationList);
 
         LinkedHashSet<TrackerState> trackerStateLinkedHashSet = trackers.getServerOneTrackerStates();
