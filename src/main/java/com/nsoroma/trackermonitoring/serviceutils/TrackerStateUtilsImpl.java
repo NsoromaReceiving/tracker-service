@@ -1,6 +1,6 @@
 package com.nsoroma.trackermonitoring.serviceutils;
 
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.TrackerLastState;
+import com.nsoroma.trackermonitoring.datasourceclient.server2api.model.TrackerLastState;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import org.springframework.stereotype.Service;
 

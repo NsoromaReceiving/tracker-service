@@ -52,14 +52,12 @@ public class Trackers {
     private TrackerStateRepository trackerStateRepository;
 
     @Autowired
-<<<<<<< HEAD
     private TrackerStateUtils trackerStateUtils;
-=======
+
     private LocationManager locationManager;
 
     @Autowired
     private UnitManager unitManager;
->>>>>>> feature/SERVERONEINT
 
     //serves api/trackers/?param1=&param2=...
     public LinkedHashSet<TrackerState> getTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> customerId,
@@ -307,9 +305,6 @@ public class Trackers {
     }
 
 
-<<<<<<< HEAD
-    //setters for autowired properties
-=======
     private TrackerState setServer1TrackerStateData(LatestLocation latestLocation, Unit unit) throws IOException, UnirestException, DataSourceClientResponseException {
            TrackerState trackerState = new TrackerState();
            trackerState.setServer("1");
@@ -317,6 +312,7 @@ public class Trackers {
            trackerState.setImei(unit.getImei());
            trackerState.setLabel(unit.getName());
            trackerState.setLastGpsUpdate(latestLocation.getDateTime().replace("T", " "));
+           trackerState.setLastGsmUpdate(latestLocation.getDateTime().replace("T", " "));
            trackerState.setLastGpsLongitude(latestLocation.getLongitude());
            trackerState.setLastGpsLatitude(latestLocation.getLatitude());
            trackerState.setCustomerName(unit.getCompany());
@@ -353,7 +349,6 @@ public class Trackers {
 
     }
 
->>>>>>> feature/SERVERONEINT
     public void setDealerAuthClient(PanelApiAuthentication dealerAuthClient) {
         this.dealerAuthClient = dealerAuthClient;
     }
@@ -374,11 +369,9 @@ public class Trackers {
         this.trackerStateRepository = trackerStateRepository;
     }
 
-<<<<<<< HEAD
     public void setTrackerStateUtils(TrackerStateUtils trackerStateUtils) {
         this.trackerStateUtils = trackerStateUtils;
     }
-=======
     public void setLocationManager(LocationManager locationManager) {
         this.locationManager = locationManager;
     }
@@ -387,5 +380,4 @@ public class Trackers {
         this.unitManager = unitManager;
     }
 
->>>>>>> feature/SERVERONEINT
 }

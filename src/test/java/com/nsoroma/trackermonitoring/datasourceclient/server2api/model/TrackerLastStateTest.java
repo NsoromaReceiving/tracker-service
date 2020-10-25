@@ -6,13 +6,12 @@ import org.meanbean.test.BeanTester;
 import org.meanbean.test.Configuration;
 import org.meanbean.test.ConfigurationBuilder;
 
-<<<<<<< HEAD:src/test/java/com/nsoroma/trackermonitoring/datasourceclient/api/model/TrackerLastStateTest.java
+
 import java.util.Collections;
 
 import static org.junit.Assert.*;
 
-=======
->>>>>>> feature/SERVERONEINT:src/test/java/com/nsoroma/trackermonitoring/datasourceclient/server2api/model/TrackerLastStateTest.java
+
 public class TrackerLastStateTest {
     @Test
     public void testObjectEquality() {
