@@ -405,7 +405,6 @@ public class Trackers {
         trackerState.setLabel(unit.getName());
         trackerState.setCustomerName(unit.getCompany());
         trackerState.setCustomerId(unit.getCompany());
-        trackerState.setCustomerId(unit.getGroupName());
         trackerState.setPhoneNumber(unit.getPhoneNumber());
         trackerState.setModel(unit.getUnitType());
         if (unit.getStatus().equals("Active")) {
