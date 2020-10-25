@@ -1,9 +1,12 @@
 package com.nsoroma.trackermonitoring.services;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiAuthentication;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.client.PanelApiCustomerService;
-import com.nsoroma.trackermonitoring.datasourceclient.panelAPI.model.Customer;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.client.UnitManager;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.Unit;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiAuthentication;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.PanelApiCustomerService;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Customer;
+import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
 import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +29,17 @@ public class CustomersImpl implements Customers {
     @Autowired
     private PanelApiCustomerService apiCustomerService;
 
-    @Override
-    public List<SlimCustomer> getCustomers() throws IOException, UnirestException {
-        String hash = apiAuthentication.getDealerHash();
-        List<Customer> customers = apiCustomerService.getCustomers(hash);
+    @Autowired
+    private UnitManager unitManager;
 
+    @Override
+    public List<SlimCustomer> getCustomers() throws IOException, UnirestException, DataSourceClientResponseException {
+        String hash = apiAuthentication.getDealerHash();
+        List<Customer> server1Customers = apiCustomerService.getCustomers(hash);
+        ArrayList<String> uids = unitManager.getUnitsStringChunks();
+        List<Unit> unitList = unitManager.getUnits(uids);
         List<SlimCustomer> slimCustomers = new ArrayList<>();
-        for(Customer customer: customers) {
+        for(Customer customer: server1Customers) {
             SlimCustomer slimCustomer = new SlimCustomer();
             slimCustomer.setCustomerId(customer.getId().toString());
             String customerName = customer.getFirstName() + " " + customer.getMiddleName() + " " + customer.getLastName();
@@ -40,6 +47,16 @@ public class CustomersImpl implements Customers {
             slimCustomer.setLogin(customer.getLogin());
             slimCustomers.add(slimCustomer);
         }
+
+        for (Unit unit: unitList) {
+            SlimCustomer slimCustomer = new SlimCustomer();
+            slimCustomer.setCustomerId(unit.getCompany());
+            slimCustomer.setCustomerName(unit.getCompany());
+            if(slimCustomers.parallelStream().noneMatch(slimCustomer1 -> slimCustomer1.getCustomerName().equals(slimCustomer.getCustomerName()))){
+                slimCustomers.add(slimCustomer);
+            }
+        }
+
         String slimCustomersStr = String.valueOf(slimCustomers);
         log.info(slimCustomersStr);
         Comparator<SlimCustomer> compareByName = (SlimCustomer name1, SlimCustomer name2) -> name1.getCustomerName().compareToIgnoreCase(name2.getCustomerName());
@@ -53,6 +70,10 @@ public class CustomersImpl implements Customers {
 
     protected void setApiCustomerService(PanelApiCustomerService apiCustomerService) {
         this.apiCustomerService = apiCustomerService;
+    }
+
+    protected void setUnitManager(UnitManager unitManager) {
+        this.unitManager = unitManager;
     }
 
 }

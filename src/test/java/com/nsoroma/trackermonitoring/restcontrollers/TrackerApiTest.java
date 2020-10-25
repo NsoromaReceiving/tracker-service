@@ -18,7 +18,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -46,17 +45,58 @@ public class TrackerApiTest {
     }
 
     @Test
-    public void getTrackerByTrackerID() throws IOException, UnirestException {
-        String trackerId = "testTrackerId";
+    public void getTrackerByTrackerIDWithIdLength6() throws IOException, UnirestException {
+        String trackerId = "123456";
         httpServletRequest.removeHeader("Accept");
         httpServletRequest.addHeader("Accept", "application/json");
         TrackerState trackerState = new TrackerState();
-        when(trackers.getTracker(trackerId)).thenReturn(trackerState);
+        trackerState.setTrackerId(trackerId);
+        when(trackers.getServerTwoTracker(trackerId)).thenReturn(trackerState);
+
+        ResponseEntity<TrackerState> responseEntity =  trackerApi.trackerID(trackerId);
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void getTrackerByTrackerIDWithIdLength6ButNotFound() throws IOException, UnirestException {
+        String trackerId = "123456";
+        httpServletRequest.removeHeader("Accept");
+        httpServletRequest.addHeader("Accept", "application/json");
+        TrackerState trackerState = new TrackerState();
+        when(trackers.getServerTwoTracker(trackerId)).thenReturn(trackerState);
+
+        ResponseEntity<TrackerState> responseEntity =  trackerApi.trackerID(trackerId);
+
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void getTrackerByTrackerIDWithIdLengthNot6() throws IOException, UnirestException {
+        String trackerId = "1234567890";
+        httpServletRequest.removeHeader("Accept");
+        httpServletRequest.addHeader("Accept", "application/json");
+        TrackerState trackerState = new TrackerState();
+        trackerState.setTrackerId(trackerId);
+        when(trackers.getServerOneTracker(trackerId)).thenReturn(Optional.of(trackerState));
 
         ResponseEntity<TrackerState> responseEntity =  trackerApi.trackerID(trackerId);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertTrue(EqualsBuilder.reflectionEquals(trackerState, responseEntity.getBody()));
+    }
+
+    @Test
+    public void getTrackerByTrackerIDWithIdLengthNot6ButNotFound() throws IOException, UnirestException {
+        String trackerId = "1234567890";
+        httpServletRequest.removeHeader("Accept");
+        httpServletRequest.addHeader("Accept", "application/json");
+        TrackerState trackerState = new TrackerState();
+        when(trackers.getServerOneTracker(trackerId)).thenReturn(Optional.empty());
+
+        ResponseEntity<TrackerState> responseEntity =  trackerApi.trackerID(trackerId);
+
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     }
 
     @Test
@@ -82,11 +122,11 @@ public class TrackerApiTest {
 
     @Test
     public void returnStatus501WhenAnErrorOccursInServiceForTrackerId() throws IOException, UnirestException{
-        String trackerId = "testTrackerId";
+        String trackerId = "123456";
         httpServletRequest.removeHeader("Accept");
         httpServletRequest.addHeader("Accept", "application/json");
 
-        when(trackers.getTracker(trackerId)).thenThrow(UnirestException.class);
+        when(trackers.getServerTwoTracker(trackerId)).thenThrow(UnirestException.class);
 
         ResponseEntity<TrackerState> responseEntity = trackerApi.trackerID(trackerId);
 

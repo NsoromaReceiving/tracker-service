@@ -2,6 +2,7 @@ package com.nsoroma.trackermonitoring.restcontrollers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Tracker;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.services.Trackers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,12 @@ public class TrackerApiController implements TrackerApi {
     }
 
     @Override
-    public TrackerState getTracker(String id) throws IOException, UnirestException {
-        return trackers.getTracker(id);
+    public TrackerState getServerTwoTracker(String id) throws IOException, UnirestException {
+        return trackers.getServerTwoTracker(id);
+    }
+
+    public Optional<TrackerState> getServerOneTracker(String id) {
+        return trackers.getServerOneTracker(id);
     }
 
     @Override

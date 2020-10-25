@@ -1,10 +1,7 @@
 package com.nsoroma.trackermonitoring.restcontrollers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nsoroma.trackermonitoring.datasourceclient.api.model.Gps;
-import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
 import com.nsoroma.trackermonitoring.model.schedule.Schedule;
-import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.nsoroma.trackermonitoring.scheduler.service.ScheduleClient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;

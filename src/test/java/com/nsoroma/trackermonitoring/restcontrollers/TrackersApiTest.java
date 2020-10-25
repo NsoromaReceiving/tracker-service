@@ -53,10 +53,10 @@ public class TrackersApiTest {
         httpServletRequest.addHeader("Accept", "application/json");
         LinkedHashSet<TrackerState> trackerStates = new LinkedHashSet<>();
         when(trackers.getTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-              Optional.empty(), Optional.empty(), Optional.empty())).thenReturn(trackerStates);
+              Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).thenReturn(trackerStates);
 
         ResponseEntity<LinkedHashSet<TrackerState>> responseEntity =  trackersApi.trackers(Optional.empty(),
-                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertTrue(EqualsBuilder.reflectionEquals(trackerStates, responseEntity.getBody()));
@@ -67,7 +67,7 @@ public class TrackersApiTest {
         httpServletRequest.removeHeader("Accept");
 
         ResponseEntity<LinkedHashSet<TrackerState>> responseEntity =  trackersApi.trackers(Optional.empty(),
-                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
         assertEquals(HttpStatus.NOT_ACCEPTABLE, responseEntity.getStatusCode());
     }
@@ -78,7 +78,7 @@ public class TrackersApiTest {
         httpServletRequest.addHeader("Accept", "xml");
 
         ResponseEntity<LinkedHashSet<TrackerState>> responseEntity =  trackersApi.trackers(Optional.empty(),
-                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
         assertEquals(HttpStatus.NOT_ACCEPTABLE, responseEntity.getStatusCode());
     }
@@ -89,10 +89,10 @@ public class TrackersApiTest {
         httpServletRequest.addHeader("Accept", "application/json");
 
         when(trackers.getTrackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty(), Optional.empty(), Optional.empty())).thenThrow(UnirestException.class);
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty())).thenThrow(UnirestException.class);
 
         ResponseEntity<LinkedHashSet<TrackerState>> responseEntity = trackersApi.trackers(Optional.empty(), Optional.empty(), Optional.empty(),
-                Optional.empty(), Optional.empty(), Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,responseEntity.getStatusCode());
     }

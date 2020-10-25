@@ -6,6 +6,8 @@
 package com.nsoroma.trackermonitoring.restcontrollers;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.nsoroma.trackermonitoring.datasourceclient.server1api.model.LatestLocation;
+import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
 import com.nsoroma.trackermonitoring.model.trackerstate.TrackerState;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
@@ -40,7 +42,7 @@ public interface TrackersApi {
     }
 
     public LinkedHashSet<TrackerState> getTrackers(Optional<String> startDate, Optional<String> endDate, Optional<String> customerId,
-                                                   Optional<String> type, Optional<String> order, Optional<String> status) throws IOException, UnirestException;
+                                                   Optional<String> type, Optional<String> order, Optional<String> status, Optional<String> server) throws IOException, UnirestException;
 
     @ApiOperation(value = "gets all trackers that meets the criteria set by the list of parameters.", nickname = "trackers", notes = "This provides a list of all trackers and thier data in a descending order of last update time.", response = TrackerState.class, responseContainer = "List", tags={ "developers", })
     @ApiResponses(value = { 
@@ -53,12 +55,13 @@ public interface TrackersApi {
                                                                  @ApiParam(value = "pass in the customer Id of a particular customer to fetch trackers registered to that customer.") @Valid @RequestParam(value = "customerId", required = false) Optional<String> customerId,
                                                                  @ApiParam(value = "pass the tracker type to fecth trackers of a particular type") @Valid @RequestParam(value = "type", required = false) Optional<String> type,
                                                                  @ApiParam(value = "if set displays the fetched trackers in order of ascending or descending order of last communiction to the server. Order of ascending signified by (asc) and order of descending signified by (dsc).") @Valid @RequestParam(value = "order", required = false) Optional<String> order,
-                                                                 @ApiParam(value = "if set fetches trackers with the specified status. these are; online, offline, signal_lost, idle, and just_registered") @Valid @RequestParam(value = "status", required = false) Optional<String> status) throws IOException {
+                                                                 @ApiParam(value = "if set fetches trackers with the specified status. these are; online, offline, signal_lost, idle, and just_registered") @Valid @RequestParam(value = "status", required = false) Optional<String> status,
+                                                                 @ApiParam(value = "select a server to filter for trackers limited to server one(1) and server two (2)") @Valid @RequestParam(value = "server", required = false) Optional<String> server ) throws IOException {
         if(getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 try {
 
-                    LinkedHashSet<TrackerState> trackerStates = getTrackers(startDate,endDate,customerId,type,order, status);
+                    LinkedHashSet<TrackerState> trackerStates = getTrackers(startDate,endDate,customerId,type,order, status, server);
                     return new ResponseEntity<>(trackerStates, HttpStatus.OK);
 
                 } catch (Exception e) {
@@ -74,5 +77,4 @@ public interface TrackersApi {
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         }
     }
-
 }
