@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +32,7 @@ public class UnitManagerImpl implements UnitManager {
     private Logger log = LoggerFactory.getLogger(UnitManagerImpl.class);
 
     @Override
-    public List<Unit> getUnits(ArrayList<String> uids) throws DataSourceClientResponseException, UnirestException, IOException {
+    public List<Unit> getUnits(List<String> uids) throws DataSourceClientResponseException, UnirestException, IOException {
 
         UserSession userSession = apiAuthentication.getUserSession();
         ArrayList<Unit> units = new ArrayList<>();
@@ -50,7 +50,8 @@ public class UnitManagerImpl implements UnitManager {
                 unitListXml = response.getBody();
                 XmlMapper xmlMapper = new XmlMapper();
                 WebServiceResultWrapper webServiceResultWrapper = xmlMapper.readValue(unitListXml, WebServiceResultWrapper.class);
-                if (webServiceResultWrapper != null && webServiceResultWrapper.getWebServiceContent().getData().getUnits() != null) {
+                if (webServiceResultWrapper != null && webServiceResultWrapper.getWebServiceContent() != null &&
+                        webServiceResultWrapper.getWebServiceContent().getData() != null  && webServiceResultWrapper.getWebServiceContent().getData().getUnits() != null) {
                     units.addAll(webServiceResultWrapper.getWebServiceContent().getData().getUnits());
                 }
             } else {
@@ -65,7 +66,7 @@ public class UnitManagerImpl implements UnitManager {
     }
 
     @Override
-    public List<LatestLocation> getLatestLocation(ArrayList<String> uids) throws UnirestException, IOException, DataSourceClientResponseException {
+    public List<LatestLocation> getLatestLocation(List<String> uids) throws UnirestException, IOException, DataSourceClientResponseException {
         UserSession userSession = apiAuthentication.getUserSession();
 
         String latestLocationXml = null;
@@ -119,6 +120,10 @@ public class UnitManagerImpl implements UnitManager {
             WebServiceResultWrapper webServiceResultWrapper = xmlMapper.readValue(unitListXml, WebServiceResultWrapper.class);
             if (webServiceResultWrapper != null && webServiceResultWrapper.getWebServiceContent().getData().getUnits() != null) {
                 List<Unit> unitList = webServiceResultWrapper.getWebServiceContent().getData().getUnits();
+                log.info("total number of tracker...");
+                log.info(String.valueOf(unitList.size()));
+                log.info("total number of units are active...");
+                log.info(String.valueOf((int) unitList.stream().filter(unit -> unit.getStatus().equalsIgnoreCase("Active")).count()));
 
                 ArrayList<String> uidList = (ArrayList<String>) unitList.stream().map(Unit::getImei).collect(Collectors.toList()).parallelStream().filter(Objects::nonNull).collect(Collectors.toList());
                 uidList.removeAll(Collections.singleton(""));
@@ -134,7 +139,6 @@ public class UnitManagerImpl implements UnitManager {
                     String unitsString = String.join(",", subStringList);
                     unitsStringList.add(unitsString);
                     start += 100;
-                    System.out.println(unitsString);
                 }
                 log.info(String.valueOf(uidList));
 
@@ -145,6 +149,34 @@ public class UnitManagerImpl implements UnitManager {
 
         log.info(String.valueOf(unitsStringList));
         return unitsStringList;
+    }
+
+
+    @Override
+    public List<String> getResourceImeis() throws IOException {
+        Class clazz = UnitManagerImpl.class;
+        InputStream inputStream = clazz.getResourceAsStream("/IMEIS.txt");
+        String data = readFromInputStream(inputStream);
+        return Arrays.asList(data.split("&"));
+    }
+
+    private String readFromInputStream(InputStream inputStream)
+            throws IOException {
+        StringBuilder resultStringBuilder = new StringBuilder();
+        try (BufferedReader br
+                     = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            int limit = 0;
+            while ((line = br.readLine()) != null) {
+                limit +=1;
+                resultStringBuilder.append(line).append(",");
+                if (limit == 100) {
+                    resultStringBuilder.append("&");
+                    limit = 0;
+                }
+            }
+        }
+        return resultStringBuilder.toString();
     }
 
     public void setHost(String host) {

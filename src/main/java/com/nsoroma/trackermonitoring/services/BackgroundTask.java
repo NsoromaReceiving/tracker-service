@@ -46,6 +46,13 @@ public class BackgroundTask {
         trackerStateRepository.saveAll(trackerStateList);
     }
 
+    @Scheduled(fixedDelay = 100000)
+    public void getServerOneTrackerStatesWithImeiList() throws IOException, UnirestException, DataSourceClientResponseException {
+        LinkedHashSet<TrackerState> trackerStateList = trackers.getServerOneTrackerStatesWithImeiList();
+        log.info(String.valueOf(trackerStateList));
+        trackerStateRepository.saveAll(trackerStateList);
+    }
+
     public void setTrackers(Trackers trackers) {
         this.trackers = trackers;
     }

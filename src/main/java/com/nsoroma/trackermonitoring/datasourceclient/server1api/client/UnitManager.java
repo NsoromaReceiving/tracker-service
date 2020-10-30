@@ -11,10 +11,12 @@ import java.util.List;
 
 public interface UnitManager {
 
-    public List<Unit> getUnits(ArrayList<String> uids) throws DataSourceClientResponseException, UnirestException, IOException;
+    public List<Unit> getUnits(List<String> uids) throws DataSourceClientResponseException, UnirestException, IOException;
 
-    public List<LatestLocation> getLatestLocation(ArrayList<String> uids) throws UnirestException, IOException, DataSourceClientResponseException;
+    public List<LatestLocation> getLatestLocation(List<String> uids) throws UnirestException, IOException, DataSourceClientResponseException;
 
     public ArrayList<String> getUnitsStringChunks() throws DataSourceClientResponseException, UnirestException, IOException;
+
+    public List<String> getResourceImeis() throws IOException;
 
 }

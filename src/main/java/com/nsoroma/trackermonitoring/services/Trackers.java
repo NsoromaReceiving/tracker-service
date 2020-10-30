@@ -114,15 +114,32 @@ public class Trackers {
         Set<TrackerState> trackerStates = new HashSet<>(Collections.emptySet());
         ArrayList<String> uids = unitManager.getUnitsStringChunks();
         List<Unit> unitList = unitManager.getUnits(uids);
-        log.info(String.valueOf(unitList.size()));
         List<LatestLocation> latestLocationList = unitManager.getLatestLocation(uids);
-        log.info(String.valueOf(latestLocationList.size()));
+
         for(Unit unit: unitList) {
             if(!unit.getImei().equals("")) {
                LatestLocation latestLocation = latestLocationList.parallelStream().filter(latestLocation1 -> unit.getImei().equals(latestLocation1.getImei())).findFirst().orElse(null);
                 if (latestLocation != null) {
                     trackerStates.add(setServer1TrackerStateData(latestLocation, unit));
-                }else {
+                } else {
+                    trackerStates.add(setServer1TrackerStateDataWithoutLocationDetails(unit));
+                }
+            }
+        }
+        return new LinkedHashSet<>(trackerStates);
+    }
+
+    public LinkedHashSet<TrackerState> getServerOneTrackerStatesWithImeiList() throws DataSourceClientResponseException, UnirestException, IOException {
+        Set<TrackerState> trackerStates = new HashSet<>(Collections.emptySet());
+        List<String> unitImeis = unitManager.getResourceImeis();
+        List<Unit> unitList = unitManager.getUnits(unitImeis);
+        for(Unit unit: unitList) {
+            if(!unit.getImei().equals("")) {
+                List<LatestLocation> latestLocationList = unitManager.getLatestLocation(Collections.singletonList(unit.getImei()));
+                if (!latestLocationList.isEmpty()) {
+                    LatestLocation latestLocation = latestLocationList.get(0);
+                    trackerStates.add(setServer1TrackerStateData(latestLocation, unit));
+                } else {
                     trackerStates.add(setServer1TrackerStateDataWithoutLocationDetails(unit));
                 }
             }
