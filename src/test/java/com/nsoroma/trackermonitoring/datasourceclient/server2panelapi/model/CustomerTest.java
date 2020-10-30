@@ -3,6 +3,8 @@ package com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Test;
 import org.meanbean.test.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CustomerTest {
     @Test

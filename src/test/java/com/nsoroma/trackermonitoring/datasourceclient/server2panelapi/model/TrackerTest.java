@@ -1,9 +1,12 @@
 package com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model;
 
+
 import org.junit.Test;
 import org.meanbean.test.BeanTester;
 import org.meanbean.test.Configuration;
 import org.meanbean.test.ConfigurationBuilder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TrackerTest {
     @Test
