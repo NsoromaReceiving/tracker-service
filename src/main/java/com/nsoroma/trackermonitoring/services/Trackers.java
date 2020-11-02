@@ -65,22 +65,7 @@ public class Trackers {
         log.info("getTracker Called");
         Set<TrackerState> trackerStates = new HashSet<>(Collections.emptySet());
 
-        /*if(customerId.isPresent()){
-            log.info("Customer Id present");
-            String hash = dealerAuthClient.getDealerHash();
-            List<Tracker> trackerList = getTrackerList(customerId, hash); //gets list of all trackers on server 2 which may belong to a user
-            List<TrackerLastState> customerTrackerLastStateList = getTrackerStateList(customerId.get(),trackerList,hash); //list od last tracker state for customer
-            Customer customer = getCustomer(hash, customerId.get()); // get customer details
 
-            for (TrackerLastState trackerLastState: customerTrackerLastStateList) {
-                TrackerState trackerState = new TrackerState();
-                trackerStates.add(trackerStateData(trackerState, trackerList, trackerLastState, customer)); // sets the trackerState data and adds to List
-            }
-        } else {
-            trackerStates.addAll(trackerStateRepository.findAll());
-        }
-
-        return new LinkedHashSet<>(filterTrackers(startDate, endDate, type,order, trackerStates, status, server));*/
 
         trackerStates.addAll(trackerStateRepository.findAll());
         return new LinkedHashSet<>(filterTrackers(startDate, endDate, type,order, trackerStates, status, server, customerId));
