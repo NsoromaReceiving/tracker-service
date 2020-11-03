@@ -12,4 +12,6 @@ import java.util.List;
 public interface Customers {
 
    List<SlimCustomer> getCustomers() throws IOException, UnirestException, DataSourceClientResponseException;
+
+   void saveCustomers() throws IOException, UnirestException, DataSourceClientResponseException;
 }

@@ -8,6 +8,7 @@ import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.client.Pan
 import com.nsoroma.trackermonitoring.datasourceclient.server2panelapi.model.Customer;
 import com.nsoroma.trackermonitoring.exceptions.DataSourceClientResponseException;
 import com.nsoroma.trackermonitoring.model.customer.SlimCustomer;
+import com.nsoroma.trackermonitoring.repository.CustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,11 @@ public class CustomersImpl implements Customers {
     @Autowired
     private UnitManager unitManager;
 
+    @Autowired
+    private CustomerRepository customerRepository;
+
     @Override
-    public List<SlimCustomer> getCustomers() throws IOException, UnirestException, DataSourceClientResponseException {
+    public void saveCustomers() throws IOException, UnirestException, DataSourceClientResponseException {
         String hash = apiAuthentication.getDealerHash();
         List<Customer> server1Customers = apiCustomerService.getCustomers(hash);
         ArrayList<String> uids = unitManager.getUnitsStringChunks();
@@ -61,7 +65,13 @@ public class CustomersImpl implements Customers {
         log.info(slimCustomersStr);
         Comparator<SlimCustomer> compareByName = (SlimCustomer name1, SlimCustomer name2) -> name1.getCustomerName().compareToIgnoreCase(name2.getCustomerName());
         slimCustomers.sort(compareByName);
-        return slimCustomers;
+
+        customerRepository.saveAll(slimCustomers);
+    }
+
+    @Override
+    public List<SlimCustomer> getCustomers() throws IOException, UnirestException, DataSourceClientResponseException {
+        return customerRepository.findAll();
     }
 
     protected void setApiAuthentication(PanelApiAuthentication apiAuthentication) {
