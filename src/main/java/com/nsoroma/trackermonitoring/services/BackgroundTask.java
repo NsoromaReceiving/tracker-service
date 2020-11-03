@@ -40,7 +40,7 @@ public class BackgroundTask {
         log.info("customers saved");
     }
 
-    //@Scheduled(fixedDelay = 100000)
+    @Scheduled(fixedDelay = 100000)
     public void getNewTrackerStates() throws IOException, UnirestException {
         String dateFormat = formatter.format(LocalDateTime.now());
         log.info("Getting Tracker State Updates at - {} ", dateFormat);
@@ -50,14 +50,14 @@ public class BackgroundTask {
         trackerStateRepository.saveAll(trackersList);
     }
 
-    //@Scheduled(fixedDelay = 100000)
+    @Scheduled(fixedDelay = 100000)
     public void getServer1Trackers() throws IOException, UnirestException, DataSourceClientResponseException {
         LinkedHashSet<TrackerState> trackerStateList = trackers.getServerOneTrackerStates();
         log.info(String.valueOf(trackerStateList));
         trackerStateRepository.saveAll(trackerStateList);
     }
 
-    //@Scheduled(fixedDelay = 100000)
+    @Scheduled(fixedDelay = 100000)
     public void getServerOneTrackerStatesWithImeiList() throws IOException, UnirestException, DataSourceClientResponseException {
         LinkedHashSet<TrackerState> trackerStateList = trackers.getServerOneTrackerStatesWithImeiList();
         log.info(String.valueOf(trackerStateList));
