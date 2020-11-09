@@ -1,7 +1,10 @@
 package com.nsoroma.trackermonitoring.model.customer;
 
+import org.springframework.data.annotation.Id;
+
 public class SlimCustomer {
 
+    @Id
     private String customerId;
     private String customerName;
     private String login;
