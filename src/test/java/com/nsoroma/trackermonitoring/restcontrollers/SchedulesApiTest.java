@@ -70,7 +70,7 @@ public class SchedulesApiTest {
 
         Schedule schedule = new Schedule();
         ZoneId zoneId = ZoneId.of("Europe/London");
-        LocalDateTime localDateTime = LocalDateTime.now().minusHours(3);
+        LocalDateTime localDateTime = LocalDateTime.now().minusHours(5);
         schedule.setZoneId(zoneId);
         schedule.setAlertTime(localDateTime);
 

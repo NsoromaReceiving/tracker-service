@@ -54,22 +54,13 @@ public interface TrackerApi {
         if(getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 try {
-                    if(id.length() > 0) {
-                        TrackerState trackerState = getServerTwoTracker(id);
-                        if(trackerState.getTrackerId() != null) {
-                            return new ResponseEntity<>(trackerState,HttpStatus.OK);
-                        } else {
-                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                        }
+                    Optional<TrackerState> trackerState = getServerOneTracker(id);
+                    if(trackerState.isPresent()) {
+                        return new ResponseEntity<>(trackerState.get(),HttpStatus.OK);
                     } else {
-                        Optional<TrackerState> trackerState = getServerOneTracker(id);
-                        if(trackerState.isPresent()) {
-                            return new ResponseEntity<>(trackerState.get(),HttpStatus.OK);
-                        } else {
-                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                        }
+                        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                     }
-                } catch (IOException | UnirestException e) {
+                } catch (Exception e) {
                     log.error("Couldn't serialize response for content type application/json", e);
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
