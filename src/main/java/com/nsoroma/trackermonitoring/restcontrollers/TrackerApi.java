@@ -54,7 +54,7 @@ public interface TrackerApi {
         if(getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 try {
-                    if(id.length() == 6) {
+                    if(id.length() > 0) {
                         TrackerState trackerState = getServerTwoTracker(id);
                         if(trackerState.getTrackerId() != null) {
                             return new ResponseEntity<>(trackerState,HttpStatus.OK);
